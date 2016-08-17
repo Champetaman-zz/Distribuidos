@@ -15,7 +15,10 @@ public class LoadBalancer {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        // Start servers connection listener
+        ConnectionListener connectionListener = new ConnectionListener();
+        connectionListener.start();
+        
+        
     }
-    
 }
