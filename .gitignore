@@ -1,0 +1,10 @@
+/Distribuidos/dist/
+/Distribuidos/build/
+/Distribuidos/nbproject/private/
+/Client/nbproject/private/
+/LoadBalancer/nbproject/private/
+/Server/nbproject/private/
+/LoadBalancer/build/
+/Server/build/
+/Libraries/dist/
+/Libraries/build/
