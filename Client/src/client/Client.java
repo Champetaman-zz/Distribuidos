@@ -27,7 +27,7 @@ public class Client {
         try {
             // arguments supply message and hostname
             Socket socket = new Socket("localhost", 1112);
-            Message msg = new Message("CONSUME", "DESCIFRAR", "localhost", 1113);
+            Message msg = new Message("CONSUME", "DESCIFRAR", "localhost", 1118);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -35,7 +35,7 @@ public class Client {
                 msg = (Message)objectInputStream.readObject();
             }while(!msg.getType().equals("ACK"));
             socket.close();
-            ServerSocket serverSocket = new ServerSocket(1113);
+            ServerSocket serverSocket = new ServerSocket(1118);
             socket = serverSocket.accept();
             objectInputStream = new ObjectInputStream(socket.getInputStream());
             msg = (Message)objectInputStream.readObject();

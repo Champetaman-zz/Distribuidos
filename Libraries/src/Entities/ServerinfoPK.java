@@ -12,10 +12,11 @@ import javax.persistence.Embeddable;
 
 /**
  *
- * @author salabd
+ * @author TG1604
  */
 @Embeddable
 public class ServerinfoPK implements Serializable {
+
     @Basic(optional = false)
     @Column(name = "IP")
     private String ip;

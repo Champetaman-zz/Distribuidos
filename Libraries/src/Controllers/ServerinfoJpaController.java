@@ -15,15 +15,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
 
 /**
  *
- * @author salabd
+ * @author TG1604
  */
 public class ServerinfoJpaController implements Serializable {
 
@@ -148,14 +145,4 @@ public class ServerinfoJpaController implements Serializable {
         }
     }
     
-    public List<Serverinfo> getFreeServerByService(String service){
-        EntityManager em = getEntityManager();
-        try {
-            Query q = em.createQuery("SELECT c FROM Serverinfo c where c.service = :service and c.busy = false", Serverinfo.class);
-            q.setParameter("service", service);
-            return q.getResultList();
-        } finally {
-            em.close();
-        }
-    }
 }

@@ -6,23 +6,36 @@
 package Entities;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Query;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author salabd
+ * @author TG1604
  */
 @Entity
 @Table(name = "SERVERINFO")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Serverinfo.findAll", query = "SELECT s FROM Serverinfo s")})
+    @NamedQuery(name = "Serverinfo.findAll", query = "SELECT s FROM Serverinfo s"),
+    @NamedQuery(name = "Serverinfo.findByIp", query = "SELECT s FROM Serverinfo s WHERE s.serverinfoPK.ip = :ip"),
+    @NamedQuery(name = "Serverinfo.findByPort", query = "SELECT s FROM Serverinfo s WHERE s.serverinfoPK.port = :port"),
+    @NamedQuery(name = "Serverinfo.findByService", query = "SELECT s FROM Serverinfo s WHERE s.service = :service"),
+    @NamedQuery(name = "Serverinfo.findByBusy", query = "SELECT s FROM Serverinfo s WHERE s.busy = :busy"),
+    @NamedQuery(name = "Serverinfo.findByLowerdata", query = "SELECT s FROM Serverinfo s WHERE s.lowerdata = :lowerdata"),
+    @NamedQuery(name = "Serverinfo.findByUpperdata", query = "SELECT s FROM Serverinfo s WHERE s.upperdata = :upperdata"),
+    @NamedQuery(name = "Serverinfo.getFreeServerByService", query = "SELECT c FROM Serverinfo c where c.service = :service and c.busy = false")})
 public class Serverinfo implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected ServerinfoPK serverinfoPK;
@@ -32,6 +45,10 @@ public class Serverinfo implements Serializable {
     @Basic(optional = false)
     @Column(name = "BUSY")
     private Boolean busy;
+    @Column(name = "LOWERDATA")
+    private String lowerdata;
+    @Column(name = "UPPERDATA")
+    private String upperdata;
 
     public Serverinfo() {
     }
@@ -72,6 +89,22 @@ public class Serverinfo implements Serializable {
 
     public void setBusy(Boolean busy) {
         this.busy = busy;
+    }
+
+    public String getLowerdata() {
+        return lowerdata;
+    }
+
+    public void setLowerdata(String lowerdata) {
+        this.lowerdata = lowerdata;
+    }
+
+    public String getUpperdata() {
+        return upperdata;
+    }
+
+    public void setUpperdata(String upperdata) {
+        this.upperdata = upperdata;
     }
 
     @Override
