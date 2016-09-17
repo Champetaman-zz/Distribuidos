@@ -3,6 +3,7 @@
   <persistence-unit name="LibrariesPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>Entities.Serverinfo</class>
+    <class>Entities.Rainbowtable</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://ec2-54-163-238-96.compute-1.amazonaws.com:5432/d8ckr7c638582g?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory"/>
       <property name="javax.persistence.jdbc.user" value="hkxhmqcpksnbpr"/>

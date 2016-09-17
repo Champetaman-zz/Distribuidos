@@ -5,9 +5,14 @@
  */
 package Listeners;
 
+import Entities.Agenda;
+import Entities.AgendaItem;
+import Entities.AssignationMessage;
 import Entities.ClientInfo;
 import Entities.Message;
+import Entities.Rainbowtable;
 import Entities.Serverinfo;
+import Persistence.RainbowTableContainer;
 import Persistence.ServerDirectory;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -29,7 +34,7 @@ import java.util.logging.Logger;
 public class ClientListener extends Thread{
     
     private ServerSocket serverSocket;
-
+    
     @Override
     public void run() {
         try {
@@ -38,13 +43,19 @@ public class ClientListener extends Thread{
                 Socket socket = serverSocket.accept();
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 Message msg = (Message) objectInputStream.readObject();
+                System.out.println("Nueva petición: " + msg.getData());
                 if(msg.getType().equals("CONSUME")){
-                    // TODO CONSUME SERVICES
-                    ClientInfo info = new ClientInfo(msg.getData(), msg.getIP(), msg.getPort());
+                    ClientInfo info = new ClientInfo((String)msg.getData(), msg.getIP(), msg.getPort());
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                    msg = new Message("ACK", ""); 
-                    objectOutputStream.writeObject(msg);
-                    process(info);
+                    Rainbowtable rainbowtable = RainbowTableContainer.getInstance().getRainbowtableJpaController().findRainbowtable(info.getPasswordHASH());
+                    if(rainbowtable != null){
+                        msg = new Message("RESULT", rainbowtable.getPassword()); 
+                        objectOutputStream.writeObject(msg);
+                    }else{
+                        msg = new Message("ACK", ""); 
+                        objectOutputStream.writeObject(msg);
+                        process(info);
+                    }
                 }
                 socket.close();
             }
@@ -59,10 +70,21 @@ public class ClientListener extends Thread{
         try {
             //TODO asssign to servers
             System.out.println("Procesando...");
-            Socket socket = new Socket(info.getIP(), info.getPort());
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            Message msg = new Message("RESULT", "holaaaa");
-            objectOutputStream.writeObject(msg);
+            List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+            AgendaItem agendaItem = new AgendaItem(info, freeServers);
+            Agenda.getInstance().getAgenda().put(info.getPasswordHASH(), agendaItem);
+            for(Serverinfo server: freeServers){
+                // GENERATE LIMITS
+                String lowerData = "";
+                String upperData = "";
+                AssignationMessage msg = new AssignationMessage(lowerData, upperData,info.getPasswordHASH());
+                Socket serverSocket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
+                ObjectOutputStream outputStream = new ObjectOutputStream(serverSocket.getOutputStream());
+                outputStream.writeObject(msg);
+                outputStream.close();
+                serverSocket.close();
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
         }

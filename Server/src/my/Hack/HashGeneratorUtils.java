@@ -19,22 +19,14 @@ public class HashGeneratorUtils {
  
     }
  
-    public static String generateSHA256(String message) throws HashGenerationException {
+    public static String generateSHA256(String message) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         return hashString(message, "SHA-256");
     }
  
-    private static String hashString(String message, String algorithm)
-            throws HashGenerationException {
- 
-        try {
-            MessageDigest digest = MessageDigest.getInstance(algorithm);
-            byte[] hashedBytes = digest.digest(message.getBytes("UTF-8"));
- 
-            return convertByteArrayToHexString(hashedBytes);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new HashGenerationException(
-                    "Could not generate hash from String", ex);
-        }
+    private static String hashString(String message, String algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+        MessageDigest digest = MessageDigest.getInstance(algorithm);
+        byte[] hashedBytes = digest.digest(message.getBytes("UTF-8"));
+        return convertByteArrayToHexString(hashedBytes);
     }
  
     private static String convertByteArrayToHexString(byte[] arrayBytes) {

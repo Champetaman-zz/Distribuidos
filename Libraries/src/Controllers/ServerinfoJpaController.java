@@ -145,4 +145,8 @@ public class ServerinfoJpaController implements Serializable {
         }
     }
     
+    public List<Serverinfo> getFreeServers(){
+        EntityManager em = getEntityManager();
+        return em.createNamedQuery("Serverinfo.getFreeServers").getResultList();
+    }
 }

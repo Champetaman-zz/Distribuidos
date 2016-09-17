@@ -11,25 +11,25 @@ package Entities;
  */
 public class ClientInfo {
     
-    private String password;
+    private String passwordHASH;
     private String IP;
     private int port;
 
     public ClientInfo(String password) {
-        this.password = password;
+        this.passwordHASH = password;
     }
     public ClientInfo(String password, String IP, int port) {
-        this.password = password;
+        this.passwordHASH = password;
         this.IP = IP;
         this.port = port;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHASH() {
+        return passwordHASH;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.passwordHASH = password;
     }
 
     public String getIP() {

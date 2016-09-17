@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Serverinfo.findByBusy", query = "SELECT s FROM Serverinfo s WHERE s.busy = :busy"),
     @NamedQuery(name = "Serverinfo.findByLowerdata", query = "SELECT s FROM Serverinfo s WHERE s.lowerdata = :lowerdata"),
     @NamedQuery(name = "Serverinfo.findByUpperdata", query = "SELECT s FROM Serverinfo s WHERE s.upperdata = :upperdata"),
-    @NamedQuery(name = "Serverinfo.getFreeServerByService", query = "SELECT c FROM Serverinfo c where c.service = :service and c.busy = false")})
+    @NamedQuery(name = "Serverinfo.getFreeServers", query = "SELECT c FROM Serverinfo c where c.busy = false")})
 public class Serverinfo implements Serializable {
 
     private static final long serialVersionUID = 1L;

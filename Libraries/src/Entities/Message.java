@@ -38,12 +38,8 @@ public class Message implements Serializable{
         this.type = type;
     }
 
-    public String getData() {
+    public Object getData() {
         return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
     }
 
     public String getIP() {

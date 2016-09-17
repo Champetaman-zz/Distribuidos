@@ -33,7 +33,7 @@ public class ServerAvilabilityController extends Thread {
                     try {
                         String IP = server.getServerinfoPK().getIp();
                         InetAddress inet = InetAddress.getByName(IP);
-                        if(!inet.isReachable(5000)){
+                        if(!inet.isReachable(500)){
                             ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
                             //TODO REASIGNAR TAREA
                         }
@@ -45,7 +45,7 @@ public class ServerAvilabilityController extends Thread {
                 }
             }
         };
-        timer.schedule(timerTask, 1000);
+        timer.schedule(timerTask, 0, 1000);
     }
         
 }
