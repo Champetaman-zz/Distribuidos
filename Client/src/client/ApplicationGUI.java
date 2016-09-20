@@ -6,12 +6,15 @@
 package client;
 
 import Entities.Message;
+import Entities.MessageRainbowTable;
+import Entities.Rainbowtable;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -50,12 +53,13 @@ public class ApplicationGUI extends javax.swing.JFrame {
         btnInterrumpirConexion = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
         btnRainbowTable = new javax.swing.JButton();
+        borrarRainbowBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Proyecto"));
 
-        btnContrasena.setText("Descifrar");
+        btnContrasena.setText("Cifrar");
         btnContrasena.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnContrasenaActionPerformed(evt);
@@ -65,6 +69,11 @@ public class ApplicationGUI extends javax.swing.JFrame {
         txtContrasena.setName("password"); // NOI18N
 
         btnHash.setText("Decriptar");
+        btnHash.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnHashMouseClicked(evt);
+            }
+        });
 
         jLabel1.setText("Contraseña");
 
@@ -100,7 +109,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
                             .addComponent(jLabel2)
                             .addComponent(btnContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnHash, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 172, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -136,6 +145,18 @@ public class ApplicationGUI extends javax.swing.JFrame {
         });
 
         btnRainbowTable.setText("Mostrar Rainbow Table");
+        btnRainbowTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnRainbowTableMouseClicked(evt);
+            }
+        });
+
+        borrarRainbowBtn.setText("Borrar Rainbow Table");
+        borrarRainbowBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                borrarRainbowBtnMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -146,8 +167,10 @@ public class ApplicationGUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnRainbowTable, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+                        .addComponent(btnRainbowTable)
+                        .addGap(31, 31, 31)
+                        .addComponent(borrarRainbowBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -159,7 +182,8 @@ public class ApplicationGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnRainbowTable, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnRainbowTable, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(borrarRainbowBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE))
                 .addGap(22, 22, 22))
         );
 
@@ -178,9 +202,9 @@ public class ApplicationGUI extends javax.swing.JFrame {
     private void btnContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContrasenaActionPerformed
         try {
             Socket socket = new Socket("localhost", 1112);
-            System.out.println("Enviando peticion");
+            System.out.println("Enviando peticion de cifrar");
             String pass = txtContrasena.getText();
-            Message msg = new Message("CONSUME", pass, "localhost", 1118);
+            Message msg = new Message("CRYPT", pass, "10.192.10.23", 1110);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -189,14 +213,17 @@ public class ApplicationGUI extends javax.swing.JFrame {
             switch(type){
                 case "ACK":
                     socket.close();
-                    ServerSocket serverSocket = new ServerSocket(1118);
+                    ServerSocket serverSocket = new ServerSocket(1110);
                     socket = serverSocket.accept();
                     objectInputStream = new ObjectInputStream(socket.getInputStream());
                     msg = (Message)objectInputStream.readObject();
-                    txtHash.setText((String)msg.getData());
+                    JOptionPane.showMessageDialog(null, "HASH: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
                     break;
                 case "RESULT":
-                    txtHash.setText((String)msg.getData());
+                    JOptionPane.showMessageDialog(null, "HASH: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    break;
+                case "ERROR":
+                    JOptionPane.showMessageDialog(null, (String)msg.getData(), "ERROR" , JOptionPane.ERROR_MESSAGE);
                     break;
             }
             socket.close();
@@ -207,6 +234,99 @@ public class ApplicationGUI extends javax.swing.JFrame {
             Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnContrasenaActionPerformed
+
+    private void btnHashMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHashMouseClicked
+        try {
+            Socket socket = new Socket("localhost", 1112);
+            System.out.println("Enviando peticion de descrifrar");
+            String hash = txtHash.getText();
+            Message msg = new Message("DECRYPT", hash, "10.192.10.23", 1110);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(msg);
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+            msg = (Message)objectInputStream.readObject();
+            String type = msg.getType();
+            switch(type){
+                case "ACK":
+                    socket.close();
+                    ServerSocket serverSocket = new ServerSocket(1110);
+                    socket = serverSocket.accept();
+                    objectInputStream = new ObjectInputStream(socket.getInputStream());
+                    msg = (Message)objectInputStream.readObject();
+                    JOptionPane.showMessageDialog(null, "PASSWORD: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    break;
+                case "RESULT":
+                    JOptionPane.showMessageDialog(null, "PASSWORD: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    break;
+                case "ERROR":
+                    JOptionPane.showMessageDialog(null, (String)msg.getData(), "ERROR" , JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+            socket.close();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnHashMouseClicked
+
+    private void btnRainbowTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRainbowTableMouseClicked
+        try {
+            Socket socket = new Socket("localhost", 1112);
+            System.out.println("Enviando peticion de rainbowtable");
+            String hash = txtHash.getText();
+            Message msg = new Message("GET_RAINBOWTABLE", hash, "10.192.10.23", 1110);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(msg);
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+            MessageRainbowTable msgRainbow = (MessageRainbowTable)objectInputStream.readObject();
+            String type = msgRainbow.getType();
+            switch(type){
+                case "RESULT":
+                    for(Rainbowtable rainbowtable: msgRainbow.getData()){
+                        System.out.println(rainbowtable.getPassword() + " -> " + rainbowtable.getHash());
+                    }
+                    break;
+                case "ERROR":
+                    JOptionPane.showMessageDialog(null, (String)msg.getData(), "ERROR" , JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+            socket.close();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnRainbowTableMouseClicked
+
+    private void borrarRainbowBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarRainbowBtnMouseClicked
+        try {
+            Socket socket = new Socket("localhost", 1112);
+            System.out.println("Enviando peticion de descrifrar");
+            String hash = txtHash.getText();
+            Message msg = new Message("DELETE_RAINBOWTABLE", hash, "10.192.10.23", 1110);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(msg);
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+            msg = (Message)objectInputStream.readObject();
+            String type = msg.getType();
+            switch(type){
+                case "RESULT":
+                    JOptionPane.showMessageDialog(null, (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    break;
+                case "ERROR":
+                    JOptionPane.showMessageDialog(null, (String)msg.getData(), "ERROR" , JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+            socket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_borrarRainbowBtnMouseClicked
 
     /**
      * @param args the command line arguments
@@ -247,6 +367,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton borrarRainbowBtn;
     private javax.swing.JButton btnBorrar;
     private javax.swing.JButton btnContrasena;
     private javax.swing.JButton btnHash;

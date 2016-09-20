@@ -25,7 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Rainbowtable.findAll", query = "SELECT r FROM Rainbowtable r"),
     @NamedQuery(name = "Rainbowtable.findByPassword", query = "SELECT r FROM Rainbowtable r WHERE r.password = :password"),
-    @NamedQuery(name = "Rainbowtable.findByHash", query = "SELECT r FROM Rainbowtable r WHERE r.hash = :hash")})
+    @NamedQuery(name = "Rainbowtable.findByHash", query = "SELECT r FROM Rainbowtable r WHERE r.hash = :hash"),
+    @NamedQuery(name = "Rainbowtable.deleteAll", query = "DELETE FROM Rainbowtable")})
 public class Rainbowtable implements Serializable {
 
     private static final long serialVersionUID = 1L;

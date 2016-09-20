@@ -28,8 +28,10 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jPanel1" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="btnRainbowTable" min="-2" pref="251" max="-2" attributes="0"/>
-                      <EmptySpace pref="111" max="32767" attributes="0"/>
+                      <Component id="btnRainbowTable" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
+                      <Component id="borrarRainbowBtn" min="-2" pref="136" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="btnSalir" min="-2" pref="122" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -46,6 +48,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="btnSalir" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
                   <Component id="btnRainbowTable" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                  <Component id="borrarRainbowBtn" pref="41" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
           </Group>
@@ -80,7 +83,7 @@
                               <Component id="btnContrasena" alignment="0" min="-2" pref="171" max="-2" attributes="0"/>
                               <Component id="btnHash" alignment="0" min="-2" pref="171" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="172" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -116,7 +119,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="btnContrasena">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Descifrar"/>
+            <Property name="text" type="java.lang.String" value="Cifrar"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnContrasenaActionPerformed"/>
@@ -133,6 +136,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Decriptar"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnHashMouseClicked"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
@@ -182,6 +188,17 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Mostrar Rainbow Table"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnRainbowTableMouseClicked"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="borrarRainbowBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Borrar Rainbow Table"/>
+      </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="borrarRainbowBtnMouseClicked"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -141,4 +143,32 @@ public class RainbowtableJpaController implements Serializable {
         }
     }
     
+    public String getHash(String pass){
+        EntityManager em = getEntityManager();
+        Rainbowtable result;
+        String hash;
+        try{
+            result = (Rainbowtable) em.createNamedQuery("Rainbowtable.findByPassword").setParameter("password", pass).getSingleResult();
+            hash = result.getHash();
+        }catch(NoResultException ex){
+            hash = "";
+        }
+        return hash;
+    }
+    
+    public String deleteAll(){
+        EntityManager em = getEntityManager();
+        String result;
+        try{
+            result = "EXITO: ";
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
+            result += em.createNamedQuery("Rainbowtable.deleteAll").executeUpdate();
+            transaction.commit();
+            result += " REGISTROS BORRADOS";
+        }catch(NoResultException ex){
+            result = ex.getMessage();
+        }
+        return result;
+    }
 }

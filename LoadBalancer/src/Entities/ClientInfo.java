@@ -11,25 +11,18 @@ package Entities;
  */
 public class ClientInfo {
     
-    private String passwordHASH;
+    private String data;
     private String IP;
     private int port;
 
-    public ClientInfo(String password) {
-        this.passwordHASH = password;
+    
+    public ClientInfo(String data) {
+        this.data = data;
     }
-    public ClientInfo(String password, String IP, int port) {
-        this.passwordHASH = password;
+    public ClientInfo(String data, String IP, int port) {
+        this.data = data;
         this.IP = IP;
         this.port = port;
-    }
-
-    public String getPasswordHASH() {
-        return passwordHASH;
-    }
-
-    public void setPassword(String password) {
-        this.passwordHASH = password;
     }
 
     public String getIP() {
@@ -47,6 +40,14 @@ public class ClientInfo {
     public void setPort(int port) {
         this.port = port;
     }
-    
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
     
 }

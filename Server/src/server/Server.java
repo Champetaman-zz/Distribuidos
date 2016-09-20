@@ -37,7 +37,8 @@ public class Server {
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
     public static String BALANCER_IP = "localhost";
-    public static String MY_IP = "localhost";
+    //public static String BALANCER_IP = "10.192.10.17";
+    public static String MY_IP = "10.192.10.23";
     public static void main(String args[]) {
         try {
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
