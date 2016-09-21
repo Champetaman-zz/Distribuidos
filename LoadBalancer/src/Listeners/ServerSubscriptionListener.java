@@ -6,12 +6,15 @@
 package Listeners;
 
 
+import Entities.Agenda;
+import Entities.AgendaItem;
 import Entities.Serverinfo;
 import Persistence.ServerDirectory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,11 +34,16 @@ public class ServerSubscriptionListener extends Thread{
                 Socket serverSocket = socket.accept();
                 ObjectInputStream inputChannel = new ObjectInputStream(serverSocket.getInputStream());
                 Serverinfo serverinfo = (Serverinfo)inputChannel.readObject();
-                System.out.println(">>Subscribed new server to " + serverinfo.getServerinfoPK().getIp() + ":" + serverinfo.getServerinfoPK().getPort());
                 if(ServerDirectory.getInstance().getServerdirectoryJpaController().findServerinfo(serverinfo.getServerinfoPK()) != null){
                     ServerDirectory.getInstance().getServerdirectoryJpaController().edit(serverinfo);
                 }else{
                     ServerDirectory.getInstance().getServerdirectoryJpaController().create(serverinfo);
+                }
+                System.out.println(">>Subscribed new server to " + serverinfo.getServerinfoPK().getIp() + ":" + serverinfo.getServerinfoPK().getPort());
+                List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                System.out.println("Available servers:");
+                for(Serverinfo server: freeServers){
+                    System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
                 }
             }
         } catch (IOException ex) {

@@ -143,6 +143,18 @@ public class RainbowtableJpaController implements Serializable {
         }
     }
     
+    public String getPassword(String hash){
+        EntityManager em = getEntityManager();
+        Rainbowtable result;
+        String pass;
+        try{
+            result = (Rainbowtable) em.createNamedQuery("Rainbowtable.findByHash").setParameter("hash", hash).getSingleResult();
+            pass = result.getPassword();
+        }catch(NoResultException ex){
+            pass = "";
+        }
+        return pass;
+    }
     public String getHash(String pass){
         EntityManager em = getEntityManager();
         Rainbowtable result;

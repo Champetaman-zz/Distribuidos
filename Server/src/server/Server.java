@@ -68,12 +68,13 @@ public class Server {
                 socket.close();
                 // TODO GENERATE STRINGS
                 String password = letters(msg);
-                
-                if(password.equals(""))
-                    password="No se encontro la contrasena";      
-       
-                System.out.println(">>Enviando respuesta "+password);
-                ResponseMessage result = new ResponseMessage("RESULT", "", password, msg.getPasswordHASH());
+                System.out.println(">>Enviando respuesta");
+                ResponseMessage result;
+                if(password.equals("")){
+                   result = new ResponseMessage("NO_RESULT", "", password, msg.getPasswordHASH());
+                }else{
+                   result = new ResponseMessage("RESULT", "", password, msg.getPasswordHASH());
+                }
                 socket = new Socket(BALANCER_IP, BALANCER_RESPONSE_PORT);
                 objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 objectOutputStream.writeObject(result);

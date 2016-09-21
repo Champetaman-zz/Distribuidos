@@ -10,7 +10,9 @@ import Entities.AgendaItem;
 import Entities.ClientInfo;
 import Entities.Message;
 import Entities.PasswordTuple;
+import Entities.Rainbowtable;
 import Entities.ResponseMessage;
+import Persistence.RainbowTableContainer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,6 +37,12 @@ public class ServerResponseListener extends Thread{
                 ObjectInputStream inputChannel = new ObjectInputStream(socket.getInputStream());
                 ResponseMessage msg = (ResponseMessage)inputChannel.readObject();
                 AgendaItem item = Agenda.getInstance().getAgenda().get(msg.getPasswordHASH());
+                System.out.println(">>Mensaje recibido: " + msg.getPassword());
+                // Guardar contraseña en DB
+                if(msg.getType().equals("RESULT")){
+                    Rainbowtable rainbowtable = new Rainbowtable(msg.getPassword(), msg.getPasswordHASH());
+                    RainbowTableContainer.getInstance().getRainbowtableJpaController().create(rainbowtable);
+                }
                 if(item != null){
                     ClientInfo info = item.getClientInfo();
                     Message response = new Message("RESULT", msg.getPassword());

@@ -9,8 +9,10 @@ import Entities.Message;
 import Entities.MessageRainbowTable;
 import Entities.Rainbowtable;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,11 +27,21 @@ import javax.swing.JOptionPane;
 public class ApplicationGUI extends javax.swing.JFrame {
     
     
+    public static String MY_IP;
+    public static int BALANCER_PORT = 1112;
+    public static int MY_RESPONSE_PORT = 1110;
+    public static String BALANCER_IP = "localhost";
     /**
      * Creates new form ApplicationGUI
      */
     public ApplicationGUI() {
-        initComponents();
+        try {
+            InetAddress IP = InetAddress.getLocalHost();
+            MY_IP = IP.getHostAddress();
+            initComponents();
+        } catch (UnknownHostException ex) {
+            JOptionPane.showMessageDialog(null, "Error obteniendo la IP", "ERROR" , JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -201,10 +213,10 @@ public class ApplicationGUI extends javax.swing.JFrame {
 
     private void btnContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContrasenaActionPerformed
         try {
-            Socket socket = new Socket("localhost", 1112);
+            Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
             System.out.println("Enviando peticion de cifrar");
             String pass = txtContrasena.getText();
-            Message msg = new Message("CRYPT", pass, "10.192.10.23", 1110);
+            Message msg = new Message("CRYPT", pass, MY_IP, MY_RESPONSE_PORT);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -213,7 +225,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
             switch(type){
                 case "ACK":
                     socket.close();
-                    ServerSocket serverSocket = new ServerSocket(1110);
+                    ServerSocket serverSocket = new ServerSocket(MY_RESPONSE_PORT);
                     socket = serverSocket.accept();
                     objectInputStream = new ObjectInputStream(socket.getInputStream());
                     msg = (Message)objectInputStream.readObject();
@@ -237,10 +249,10 @@ public class ApplicationGUI extends javax.swing.JFrame {
 
     private void btnHashMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnHashMouseClicked
         try {
-            Socket socket = new Socket("localhost", 1112);
+            Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
             System.out.println("Enviando peticion de descrifrar");
             String hash = txtHash.getText();
-            Message msg = new Message("DECRYPT", hash, "10.192.10.23", 1110);
+            Message msg = new Message("DECRYPT", hash, MY_IP, MY_RESPONSE_PORT);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -249,20 +261,24 @@ public class ApplicationGUI extends javax.swing.JFrame {
             switch(type){
                 case "ACK":
                     socket.close();
-                    ServerSocket serverSocket = new ServerSocket(1110);
+                    System.out.println(">>Esperando respuesta");
+                    ServerSocket serverSocket = new ServerSocket(MY_RESPONSE_PORT);
                     socket = serverSocket.accept();
                     objectInputStream = new ObjectInputStream(socket.getInputStream());
                     msg = (Message)objectInputStream.readObject();
                     JOptionPane.showMessageDialog(null, "PASSWORD: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    socket.close();
+                    serverSocket.close();
                     break;
                 case "RESULT":
                     JOptionPane.showMessageDialog(null, "PASSWORD: " + (String)msg.getData(), "EXITO" , JOptionPane.PLAIN_MESSAGE);
+                    socket.close();
                     break;
                 case "ERROR":
                     JOptionPane.showMessageDialog(null, (String)msg.getData(), "ERROR" , JOptionPane.ERROR_MESSAGE);
+                    socket.close();
                     break;
             }
-            socket.close();
             
         } catch (IOException ex) {
             Logger.getLogger(ApplicationGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -273,10 +289,10 @@ public class ApplicationGUI extends javax.swing.JFrame {
 
     private void btnRainbowTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRainbowTableMouseClicked
         try {
-            Socket socket = new Socket("localhost", 1112);
+            Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
             System.out.println("Enviando peticion de rainbowtable");
             String hash = txtHash.getText();
-            Message msg = new Message("GET_RAINBOWTABLE", hash, "10.192.10.23", 1110);
+            Message msg = new Message("GET_RAINBOWTABLE", hash, MY_IP, MY_RESPONSE_PORT);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -303,10 +319,10 @@ public class ApplicationGUI extends javax.swing.JFrame {
 
     private void borrarRainbowBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarRainbowBtnMouseClicked
         try {
-            Socket socket = new Socket("localhost", 1112);
+            Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
             System.out.println("Enviando peticion de descrifrar");
             String hash = txtHash.getText();
-            Message msg = new Message("DELETE_RAINBOWTABLE", hash, "10.192.10.23", 1110);
+            Message msg = new Message("DELETE_RAINBOWTABLE", hash, MY_IP, MY_RESPONSE_PORT);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(msg);
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());

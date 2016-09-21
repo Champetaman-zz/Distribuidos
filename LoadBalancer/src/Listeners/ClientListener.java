@@ -92,9 +92,9 @@ public class ClientListener extends Thread{
                         }
                         break;
                     case "DECRYPT":
-                        Rainbowtable rainbowtable = RainbowTableContainer.getInstance().getRainbowtableJpaController().findRainbowtable(info.getData());
-                        if(rainbowtable != null){
-                            msg = new Message("RESULT", rainbowtable.getPassword()); 
+                        String password = RainbowTableContainer.getInstance().getRainbowtableJpaController().getPassword(info.getData());
+                        if(!password.equals("")){
+                            msg = new Message("RESULT", password); 
                             objectOutputStream.writeObject(msg);
                         }else{
                             msg = new Message("ACK", ""); 
@@ -115,8 +115,6 @@ public class ClientListener extends Thread{
     
     public void decrypt(ClientInfo info){
         try {
-            //TODO asssign to servers
-            System.out.println("Desencriptando...");
             List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
             AgendaItem agendaItem = new AgendaItem(info, freeServers);
             Agenda.getInstance().getAgenda().put(info.getData(), agendaItem);
@@ -132,7 +130,7 @@ public class ClientListener extends Thread{
                 outputStream.close();
                 serverSocket.close();
             }
-            
+            System.out.println("Desencriptando...");
         } catch (IOException ex) {
             Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -34,6 +34,7 @@ public class ServerAvilabilityController extends Thread {
                         String IP = server.getServerinfoPK().getIp();
                         InetAddress inet = InetAddress.getByName(IP);
                         if(!inet.isReachable(500)){
+                            System.out.println(">>Servidor desconectado: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                             ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
                             //TODO REASIGNAR TAREA
                         }
