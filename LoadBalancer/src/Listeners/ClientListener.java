@@ -43,6 +43,7 @@ public class ClientListener extends Thread{
     public void run() {
         try {
             serverSocket = new ServerSocket(1112);
+            System.out.println(">>Esperando mensajes de clientes");
             while(true){
                 Socket socket = serverSocket.accept();
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());

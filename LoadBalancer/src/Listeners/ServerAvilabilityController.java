@@ -6,10 +6,14 @@
 package Listeners;
 
 import Controllers.exceptions.NonexistentEntityException;
+import Entities.ServerMessage;
 import Entities.Serverinfo;
 import Persistence.ServerDirectory;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,16 +36,15 @@ public class ServerAvilabilityController extends Thread {
                 for(Serverinfo server: servers){
                     try {
                         String IP = server.getServerinfoPK().getIp();
-                        InetAddress inet = InetAddress.getByName(IP);
-                        if(!inet.isReachable(500)){
+                        Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
+                        socket.close();
+                    } catch (IOException ex) {
+                        try {
                             System.out.println(">>Servidor desconectado: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                             ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
-                            //TODO REASIGNAR TAREA
+                        } catch (NonexistentEntityException ex1) {
+                            Logger.getLogger(ServerAvilabilityController.class.getName()).log(Level.SEVERE, null, ex1);
                         }
-                    } catch (IOException ex) {
-                        Logger.getLogger(ServerAvilabilityController.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (NonexistentEntityException ex) {
-                        Logger.getLogger(ServerAvilabilityController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }

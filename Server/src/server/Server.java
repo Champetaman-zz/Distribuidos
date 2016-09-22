@@ -5,6 +5,7 @@
  */
 package server;
 
+import Listeners.LoadBalancerListener;
 import Entities.ServerMessage;
 import Entities.Message;
 import Entities.PasswordTuple;
@@ -32,7 +33,7 @@ import my.Hack.HashGeneratorUtils;
  */
 public class Server {
 
-    public static int MY_PORT = 2010;
+    public static int MY_PORT = 1010;
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
     public static String BALANCER_IP = "localhost";

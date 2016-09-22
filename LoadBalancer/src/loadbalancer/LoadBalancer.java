@@ -29,6 +29,7 @@ public class LoadBalancer {
         
         // DELETE SERVER DIRECTORY
         List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+        System.out.println("Borrando directorio de servidores");
         for(Serverinfo server: freeServers){
             try {
                 System.out.println("Borrando: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );

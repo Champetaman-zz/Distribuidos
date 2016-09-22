@@ -30,6 +30,7 @@ public class ServerSubscriptionListener extends Thread{
     public void run() {
         try {
             socket = new ServerSocket(1111);
+            System.out.println(">>Esperando subscripcion de servidores");
             while(true){
                 Socket serverSocket = socket.accept();
                 ObjectInputStream inputChannel = new ObjectInputStream(serverSocket.getInputStream());

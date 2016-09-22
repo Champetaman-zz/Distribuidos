@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server;
+package Listeners;
 
 import Entities.TaskContainer;
 import Entities.ServerMessage;
@@ -15,6 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import server.Server;
 import static server.Server.BALANCER_IP;
 import static server.Server.BALANCER_RESPONSE_PORT;
 

@@ -70,7 +70,7 @@ public class DecryptThread extends Thread{
         //fin = Integer.getInteger(msg.getUpperData());
         ini=96;
         fin=99;
-        //*
+        /*
         ini=106;
         fin=115;
         //*/
