@@ -121,17 +121,35 @@ public class ClientListener extends Thread{
         try {
             if(!Agenda.getInstance().getAgenda().isEmpty()){
                 AgendaItem agendaItem = Agenda.getInstance().getAgenda().element();
+                
+                // DEFINE LIMITS
+                Integer limit,res =0,machine, low=1, up;
+                machine= agendaItem.getServers().size();
+                System.out.println("Machines in directory:="+machine);
+                if(255%machine==0){
+                    limit=255/machine;                        
+                }
+                else{
+                    limit=(255/machine)+1;                        
+                    res=255%machine;                        
+                }
+                                
                 for(Serverinfo server: agendaItem.getServers()){
+                    up=low+limit;
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
                     // GENERATE LIMITS
-                    String lowerData = "";
-                    String upperData = "";
+                    String lowerData = low.toString();
+                    String upperData = up.toString();
                     ServerMessage msg = new ServerMessage("ASSIGNATION", lowerData, upperData,agendaItem.getClientInfo().getData());
                     Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
                     ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                     outputStream.writeObject(msg);
                     outputStream.close();
                     socket.close();
+                    res=res-1;
+                    if(res==0)
+                        limit=limit-1;
+                    low=up;
                 }
                 System.out.println("Desencriptando...");
             }

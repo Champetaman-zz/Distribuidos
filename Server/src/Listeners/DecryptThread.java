@@ -33,7 +33,7 @@ public class DecryptThread extends Thread{
         while(true){
             System.out.println(">>Esperando mensaje para decriptar");
             while(TaskContainer.getInstance().getServerMessage() == null){
-                System.out.println(".");
+               
             }
             System.out.println(">>Comenzando a decriptar");
             try {
@@ -73,10 +73,9 @@ public class DecryptThread extends Thread{
     public static String letters(ServerMessage msg) {
         int ini, fin;
         String hash = msg.getPasswordHASH();
-        //ini = Integer.getInteger(msg.getLowerData());
-        //fin = Integer.getInteger(msg.getUpperData());
-        ini=96;
-        fin=99;
+        ini = Integer.getInteger(msg.getLowerData());
+        fin = Integer.getInteger(msg.getUpperData());
+    
         for (int i = ini; i < fin; i++) {
             if(TaskContainer.getInstance().getServerMessage() != null){
                 String pass=strings(3, "" + (char) i, hash);
