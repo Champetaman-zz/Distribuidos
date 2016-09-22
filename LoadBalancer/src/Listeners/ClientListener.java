@@ -102,9 +102,14 @@ public class ClientListener extends Thread{
                             objectOutputStream.writeObject(msg);
                             List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
                             System.out.println("Cantidad de Servers:="+freeServers.size());
-                            AgendaItem agendaItem = new AgendaItem(info, freeServers);
-                            Agenda.getInstance().getAgenda().add(agendaItem);
-                            ClientListener.decrypt();
+                            if(freeServers.size() != 0){
+                                AgendaItem agendaItem = new AgendaItem(info, freeServers);
+                                Agenda.getInstance().getAgenda().add(agendaItem);
+                                ClientListener.decrypt();
+                            }else{
+                                msgRainbow = new MessageRainbowTable("ERROR", "No hay servidores disponibles");
+                                objectOutputStream.writeObject(msg);
+                            }
                         }
                         break;
                 }
@@ -138,6 +143,7 @@ public class ClientListener extends Thread{
                 for(Serverinfo server: agendaItem.getServers()){
                     up=low+limit;
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
+                    ServerDirectory.getInstance().getServerdirectoryJpaController().set_busy(server);
                     // GENERATE LIMITS
                     String lowerData = low.toString();
                     String upperData = up.toString();

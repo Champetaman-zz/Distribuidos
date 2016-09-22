@@ -15,6 +15,7 @@ import Entities.ResponseMessage;
 import Entities.ServerMessage;
 import Entities.Serverinfo;
 import Persistence.RainbowTableContainer;
+import Persistence.ServerDirectory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -55,6 +56,7 @@ public class ServerResponseListener extends Thread{
                         // TODO AVISAR A LOS DEMAS SERVIDORES QUE PAREN
                         ServerMessage stopMsg = new ServerMessage("STOP","", "", "");
                         for(Serverinfo server: item.getServers()){
+                            ServerDirectory.getInstance().getServerdirectoryJpaController().set_unbusy(server);
                             System.out.println(">>Enviando mensaje de parar a :" + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                             socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
                             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());

@@ -11,10 +11,14 @@ import Entities.Serverinfo;
 import Entities.ServerinfoPK;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -148,5 +152,35 @@ public class ServerinfoJpaController implements Serializable {
     public List<Serverinfo> getFreeServers(){
         EntityManager em = getEntityManager();
         return em.createNamedQuery("Serverinfo.getFreeServers").getResultList();
+    }
+   
+    public void set_busy(Serverinfo server){
+        EntityManager em = getEntityManager();
+        try{
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
+            em.createQuery("UPDATE Serverinfo s SET s.busy = true WHERE s.serverinfoPK.ip = :ip and s.serverinfoPK.port = :port")
+                    .setParameter("ip", server.getServerinfoPK().getIp())
+                    .setParameter("port", server.getServerinfoPK().getPort())
+                    .executeUpdate();
+            transaction.commit();
+        }catch(NoResultException ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    public void set_unbusy(Serverinfo server){
+        EntityManager em = getEntityManager();
+        try{
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
+            em.createQuery("UPDATE Serverinfo s SET s.busy = false WHERE s.serverinfoPK.ip = :ip and s.serverinfoPK.port = :port")
+                    .setParameter("ip", server.getServerinfoPK().getIp())
+                    .setParameter("port", server.getServerinfoPK().getPort())
+                    .executeUpdate();
+            transaction.commit();
+        }catch(NoResultException ex){
+            ex.printStackTrace();
+        }
     }
 }

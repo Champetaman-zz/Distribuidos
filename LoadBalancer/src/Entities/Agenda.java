@@ -5,9 +5,10 @@
  */
 package Entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -16,7 +17,6 @@ import java.util.Queue;
  */
 public class Agenda {
     
-    //private Map<String, AgendaItem> agenda;
     private Queue<AgendaItem> agenda;
     private static Agenda instance;
     private Agenda(){
