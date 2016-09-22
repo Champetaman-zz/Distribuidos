@@ -16,8 +16,6 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import server.Server;
-import static server.Server.BALANCER_IP;
-import static server.Server.BALANCER_RESPONSE_PORT;
 
 /**
  *
@@ -34,26 +32,27 @@ public class LoadBalancerListener extends Thread{
                 Socket socket = serverSocket.accept();
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 ServerMessage msg = (ServerMessage) objectInputStream.readObject();
+                socket.close();
                 System.out.println(">>Recibido mensaje de: " + msg.getType());
                 switch(msg.getType()){
                     case "ASSIGNATION":
                         System.out.println("Input values:= " + msg.getLowerData() + "-" + msg.getUpperData() + "-" + msg.getPasswordHASH());
-                        socket.close();
                         TaskContainer.getInstance().setServerMessage(msg);
                         break;
                     case "STOP":
                         TaskContainer.getInstance().setServerMessage(null);
                         break;
                 }    
-                socket.close();
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             try {
                 ResponseMessage result = new ResponseMessage("ERROR", ex.getMessage(), "", "");
                 Socket socket = new Socket(Server.BALANCER_IP, Server.BALANCER_RESPONSE_PORT);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 objectOutputStream.writeObject(result);
                 objectOutputStream.close();
+                socket.close();
             } catch (IOException ex1) {
                 Logger.getLogger(LoadBalancerListener.class.getName()).log(Level.SEVERE, null, ex1);
             }

@@ -36,7 +36,7 @@ public class ServerAvilabilityController extends Thread {
                 for(Serverinfo server: servers){
                     try {
                         String IP = server.getServerinfoPK().getIp();
-                        Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
+                        Socket socket = new Socket(server.getServerinfoPK().getIp(), 2121);
                         socket.close();
                     } catch (IOException ex) {
                         try {

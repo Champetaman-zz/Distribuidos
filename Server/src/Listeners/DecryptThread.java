@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server;
+package Listeners;
 
 import Entities.TaskContainer;
 import Entities.ServerMessage;
@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import my.Hack.HashGeneratorUtils;
+import server.Server;
 import static server.Server.BALANCER_IP;
 import static server.Server.BALANCER_RESPONSE_PORT;
 import static server.Server.caracteres;
@@ -27,38 +28,44 @@ import static server.Server.caracteres;
 public class DecryptThread extends Thread{
 
     @Override
+    @SuppressWarnings("empty-statement")
     public void run() {
-        System.out.println(">>Esperando mensaje para decriptar");
-        while(TaskContainer.getInstance().getServerMessage() == null);
-        System.out.println(">>Comenzando a decriptar");
-        try {
-            ServerMessage msg = TaskContainer.getInstance().getServerMessage();
-            String password = letters(msg);
-            if(TaskContainer.getInstance().getServerMessage() != null){
-                System.out.println(">>Enviando respuesta");
-                ResponseMessage result;
-                if(password.equals("")){
-                    result = new ResponseMessage("NO_RESULT", "", password, msg.getPasswordHASH());
-                }else{
-                    result = new ResponseMessage("RESULT", "", password, msg.getPasswordHASH());
-                }
-                Socket socket = new Socket(Server.BALANCER_IP, Server.BALANCER_RESPONSE_PORT);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject(result);
-                objectOutputStream.close();
-                socket.close();
-            }else{
-                System.out.println(">>Parando hilo");
+        while(true){
+            System.out.println(">>Esperando mensaje para decriptar");
+            while(TaskContainer.getInstance().getServerMessage() == null){
+                System.out.println(".");
             }
-        } catch (IOException ex) {
+            System.out.println(">>Comenzando a decriptar");
             try {
-                ResponseMessage result = new ResponseMessage("ERROR", ex.getMessage(), "", "");
-                Socket socket = new Socket(Server.BALANCER_IP, Server.BALANCER_RESPONSE_PORT);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject(result);
-                objectOutputStream.close();
-            } catch (IOException ex1) {
-                Logger.getLogger(DecryptThread.class.getName()).log(Level.SEVERE, null, ex1);
+                ServerMessage msg = TaskContainer.getInstance().getServerMessage();
+                String password = letters(msg);
+                if(TaskContainer.getInstance().getServerMessage() != null){
+                    System.out.println(">>Enviando respuesta");
+                    ResponseMessage result;
+                    if(password.equals("")){
+                        result = new ResponseMessage("NO_RESULT", "", password, msg.getPasswordHASH());
+                    }else{
+                        result = new ResponseMessage("RESULT", "", password, msg.getPasswordHASH());
+                    }
+                    Socket socket = new Socket(Server.BALANCER_IP, Server.BALANCER_RESPONSE_PORT);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                    objectOutputStream.writeObject(result);
+                    objectOutputStream.close();
+                    socket.close();
+                    TaskContainer.getInstance().setServerMessage(null);
+                }else{
+                    System.out.println(">>Parando hilo");
+                }
+            } catch (IOException ex) {
+                try {
+                    ResponseMessage result = new ResponseMessage("ERROR", ex.getMessage(), "", "");
+                    Socket socket = new Socket(Server.BALANCER_IP, Server.BALANCER_RESPONSE_PORT);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                    objectOutputStream.writeObject(result);
+                    objectOutputStream.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(DecryptThread.class.getName()).log(Level.SEVERE, null, ex1);
+                }
             }
         }
     }
@@ -70,10 +77,6 @@ public class DecryptThread extends Thread{
         //fin = Integer.getInteger(msg.getUpperData());
         ini=96;
         fin=99;
-        /*
-        ini=106;
-        fin=115;
-        //*/
         for (int i = ini; i < fin; i++) {
             if(TaskContainer.getInstance().getServerMessage() != null){
                 String pass=strings(3, "" + (char) i, hash);

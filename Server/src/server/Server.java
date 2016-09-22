@@ -5,6 +5,7 @@
  */
 package server;
 
+import Listeners.DecryptThread;
 import Listeners.LoadBalancerListener;
 import Entities.ServerMessage;
 import Entities.Message;
@@ -34,6 +35,7 @@ import my.Hack.HashGeneratorUtils;
 public class Server {
 
     public static int MY_PORT = 1010;
+    public static int MY_PING_PORT = 2121;
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
     public static String BALANCER_IP = "localhost";
@@ -51,6 +53,9 @@ public class Server {
             InetAddress IP = InetAddress.getLocalHost();
             MY_IP = IP.getHostAddress();
             System.out.println("IP of my server is := " + IP.getHostAddress());
+            
+            // ABRIR PUERTO PARA PINGS
+            //ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
             // SUBSCRIPCION A LOAD BALANCER
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
             Serverinfo serverinfo = new Serverinfo(serverinfoPK, "DESCIFRAR", false);
