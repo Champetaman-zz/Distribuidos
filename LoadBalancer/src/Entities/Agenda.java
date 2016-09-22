@@ -6,7 +6,9 @@
 package Entities;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  *
@@ -14,10 +16,11 @@ import java.util.Map;
  */
 public class Agenda {
     
-    private Map<String, AgendaItem> agenda;
+    //private Map<String, AgendaItem> agenda;
+    private Queue<AgendaItem> agenda;
     private static Agenda instance;
     private Agenda(){
-        this.agenda = new HashMap<>();
+        this.agenda = new LinkedList<AgendaItem>();
     }
     
     public static Agenda getInstance(){
@@ -26,11 +29,12 @@ public class Agenda {
         return instance;
     }
 
-    public Map<String, AgendaItem> getAgenda() {
+    public Queue<AgendaItem> getAgenda() {
         return agenda;
     }
 
-    public void setAgenda(Map<String, AgendaItem> agenda) {
+    public void setAgenda(Queue<AgendaItem> agenda) {
         this.agenda = agenda;
     }
+    
 }

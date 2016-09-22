@@ -5,10 +5,16 @@
  */
 package loadbalancer;
 
+import Controllers.exceptions.NonexistentEntityException;
+import Entities.Serverinfo;
 import Listeners.ClientListener;
 import Listeners.ServerSubscriptionListener;
 import Listeners.ServerAvilabilityController;
 import Listeners.ServerResponseListener;
+import Persistence.ServerDirectory;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,6 +26,17 @@ public class LoadBalancer {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        // DELETE SERVER DIRECTORY
+        List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+        for(Serverinfo server: freeServers){
+            try {
+                System.out.println("Borrando: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
+                ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
+            } catch (NonexistentEntityException ex) {
+                Logger.getLogger(LoadBalancer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         // Start servers connection listener
         ServerSubscriptionListener connectionListener = new ServerSubscriptionListener();
         connectionListener.start();
@@ -29,5 +46,6 @@ public class LoadBalancer {
         serverAvilabilityController.start();
         ServerResponseListener serverResponseListener = new ServerResponseListener();
         serverResponseListener.start();
+        
     }
 }

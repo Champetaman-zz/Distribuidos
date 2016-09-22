@@ -7,7 +7,7 @@ package Listeners;
 
 import Entities.Agenda;
 import Entities.AgendaItem;
-import Entities.AssignationMessage;
+import Entities.ServerMessage;
 import Entities.ClientInfo;
 import Entities.Message;
 import Entities.MessageRainbowTable;
@@ -99,7 +99,10 @@ public class ClientListener extends Thread{
                         }else{
                             msg = new Message("ACK", ""); 
                             objectOutputStream.writeObject(msg);
-                            decrypt(info);
+                            List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                            AgendaItem agendaItem = new AgendaItem(info, freeServers);
+                            Agenda.getInstance().getAgenda().add(agendaItem);
+                            ClientListener.decrypt();
                         }
                         break;
                 }
@@ -113,24 +116,24 @@ public class ClientListener extends Thread{
         }
     }
     
-    public void decrypt(ClientInfo info){
+    public static void decrypt(){
         try {
-            List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
-            AgendaItem agendaItem = new AgendaItem(info, freeServers);
-            Agenda.getInstance().getAgenda().put(info.getData(), agendaItem);
-            for(Serverinfo server: freeServers){
-                System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
-                // GENERATE LIMITS
-                String lowerData = "";
-                String upperData = "";
-                AssignationMessage msg = new AssignationMessage(lowerData, upperData,info.getData());
-                Socket serverSocket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
-                ObjectOutputStream outputStream = new ObjectOutputStream(serverSocket.getOutputStream());
-                outputStream.writeObject(msg);
-                outputStream.close();
-                serverSocket.close();
+            if(!Agenda.getInstance().getAgenda().isEmpty()){
+                AgendaItem agendaItem = Agenda.getInstance().getAgenda().element();
+                for(Serverinfo server: agendaItem.getServers()){
+                    System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
+                    // GENERATE LIMITS
+                    String lowerData = "";
+                    String upperData = "";
+                    ServerMessage msg = new ServerMessage("ASSIGNATION", lowerData, upperData,agendaItem.getClientInfo().getData());
+                    Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
+                    ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                    outputStream.writeObject(msg);
+                    outputStream.close();
+                    socket.close();
+                }
+                System.out.println("Desencriptando...");
             }
-            System.out.println("Desencriptando...");
         } catch (IOException ex) {
             Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -11,16 +11,26 @@ import java.io.Serializable;
  *
  * @author TG1604
  */
-public class AssignationMessage implements Serializable{
+public class ServerMessage implements Serializable{
     
+    private String type;
     private String lowerData;
     private String upperData;
     private String passwordHASH;
 
-    public AssignationMessage(String lowerData, String upperData, String passwordHASH) {
+    public ServerMessage(String type, String lowerData, String upperData, String passwordHASH) {
+        this.type = type;
         this.lowerData = lowerData;
         this.upperData = upperData;
         this.passwordHASH = passwordHASH;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getLowerData() {

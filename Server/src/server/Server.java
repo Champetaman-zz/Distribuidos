@@ -5,7 +5,7 @@
  */
 package server;
 
-import Entities.AssignationMessage;
+import Entities.ServerMessage;
 import Entities.Message;
 import Entities.PasswordTuple;
 import Entities.ResponseMessage;
@@ -32,7 +32,7 @@ import my.Hack.HashGeneratorUtils;
  */
 public class Server {
 
-    private static int MY_PORT = 1010;
+    public static int MY_PORT = 2010;
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
     public static String BALANCER_IP = "localhost";
@@ -44,14 +44,13 @@ public class Server {
         for (int i = 0; i < 255; i++) {
             caracteres.add(i);
         }
-
+        
         try {
-
             //MY_IP
             InetAddress IP = InetAddress.getLocalHost();
             MY_IP = IP.getHostAddress();
             System.out.println("IP of my server is := " + IP.getHostAddress());
-
+            // SUBSCRIPCION A LOAD BALANCER
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
             Serverinfo serverinfo = new Serverinfo(serverinfoPK, "DESCIFRAR", false);
             Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
@@ -59,82 +58,19 @@ public class Server {
             objectOutputStream.writeObject(serverinfo);
             objectOutputStream.close();
             socket.close();
-            ServerSocket serverSocket = new ServerSocket(MY_PORT);
-            while (true) {
-                socket = serverSocket.accept();
-                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                AssignationMessage msg = (AssignationMessage) objectInputStream.readObject();
-                System.out.println("Input values:= " + msg.getLowerData() + "-" + msg.getUpperData() + "-" + msg.getPasswordHASH());
-                socket.close();
-                // TODO GENERATE STRINGS
-                String password = letters(msg);
-                System.out.println(">>Enviando respuesta");
-                ResponseMessage result;
-                if(password.equals("")){
-                   result = new ResponseMessage("NO_RESULT", "", password, msg.getPasswordHASH());
-                }else{
-                   result = new ResponseMessage("RESULT", "", password, msg.getPasswordHASH());
-                }
-                socket = new Socket(BALANCER_IP, BALANCER_RESPONSE_PORT);
-                objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject(result);
-                objectOutputStream.close();
-                socket.close();
-            }
+            
+            DecryptThread decryptThread = new DecryptThread();
+            decryptThread.start();
+            
+            LoadBalancerListener loadBalancerListener = new LoadBalancerListener();
+            loadBalancerListener.start();
+            
+           
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public static String letters(AssignationMessage msg) {
-        int ini, fin;
-        String hash = msg.getPasswordHASH();
-        //ini = Integer.getInteger(msg.getLowerData());
-        //fin = Integer.getInteger(msg.getUpperData());
-        ini=96;
-        fin=99;
-
-        for (int i = ini; i < fin; i++) {
-            String pass=strings(3, "" + (char) i, hash);
-            if(!pass.equals(""))
-                return pass; 
-        }
-        return "";
-    }
-
-    public static String strings(int n, String start, String hash) {
-        System.out.println("String:="+start);
-        if (compare(start,hash)) {
-            System.out.println("RTA "+start);
-            return start;
-        } 
-        String ret="";
-        if( start.length() < n) {
-            
-            for (int x : caracteres) {
-                ret= strings(n, start + (char) x, hash);
-                if(!ret.equals(""))
-                    return ret;
-            }
-        }
-        return ret;
-    }
     
-    public static boolean compare (String s, String hash){
-        try {
-            String sha256Hash = HashGeneratorUtils.generateSHA256(s);
-            //System.out.println("Real "+hash);
-            //System.out.println("Otro "+sha256Hash);
-            if(sha256Hash.equals(hash)){
-                return true;
-            }
-           
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         return false;
-    }
 }
