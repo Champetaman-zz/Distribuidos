@@ -34,14 +34,15 @@ import my.Hack.HashGeneratorUtils;
  */
 public class Server {
 
-    public static int MY_PORT = 1010;
-    public static int MY_PING_PORT = 2121;
+    public static int MY_PORT = 2028;
+    public static int MY_PING_PORT = 4040;
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
     public static String BALANCER_IP = "localhost";
     public static String MY_IP = "localhost";
     public static List<Integer> caracteres = new ArrayList<>();
 
+    @SuppressWarnings("empty-statement")
     public static void main(String args[]) {
 
         for (int i = 0; i < 255; i++) {
@@ -49,10 +50,7 @@ public class Server {
         }
         
         try {
-           
             
-            // ABRIR PUERTO PARA PINGS
-            ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
             // SUBSCRIPCION A LOAD BALANCER
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
             Serverinfo serverinfo = new Serverinfo(serverinfoPK, "DESCIFRAR", false);
@@ -68,7 +66,12 @@ public class Server {
             LoadBalancerListener loadBalancerListener = new LoadBalancerListener();
             loadBalancerListener.start();
             
-           
+            // ABRIR PUERTO PARA PINGS
+            ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
+            while(true){
+                socket = serverSocketPing.accept();
+                socket.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

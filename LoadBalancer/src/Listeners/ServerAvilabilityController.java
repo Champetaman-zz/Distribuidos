@@ -36,9 +36,11 @@ public class ServerAvilabilityController extends Thread {
                 for(Serverinfo server: servers){
                     try {
                         String IP = server.getServerinfoPK().getIp();
-                        Socket socket = new Socket(server.getServerinfoPK().getIp(), 2121);
+                        Socket socket = new Socket(server.getServerinfoPK().getIp(), 4040);
                         socket.close();
+                        System.out.println("Revisado: " + server.getServerinfoPK().getIp());
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         try {
                             System.out.println(">>Servidor desconectado: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                             ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
