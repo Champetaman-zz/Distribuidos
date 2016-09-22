@@ -320,7 +320,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
     private void borrarRainbowBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarRainbowBtnMouseClicked
         try {
             Socket socket = new Socket(BALANCER_IP, BALANCER_PORT);
-            System.out.println("Enviando peticion de descrifrar");
+            System.out.println("Enviando peticion de borrar rainbowtable");
             String hash = txtHash.getText();
             Message msg = new Message("DELETE_RAINBOWTABLE", hash, MY_IP, MY_RESPONSE_PORT);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());

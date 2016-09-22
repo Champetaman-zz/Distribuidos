@@ -38,7 +38,6 @@ public class ServerResponseListener extends Thread{
                 Socket socket = this.serverSocket.accept();
                 ObjectInputStream inputChannel = new ObjectInputStream(socket.getInputStream());
                 ResponseMessage msg = (ResponseMessage)inputChannel.readObject();
-                System.out.println(">>Mensaje recibido: " + msg.getPassword());
                 socket.close();
                 // Guardar contraseña en DB
                 if(msg.getType().equals("RESULT")){
