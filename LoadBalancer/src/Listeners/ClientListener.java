@@ -152,14 +152,21 @@ public class ClientListener extends Thread {
                 List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
 
                 while(freeServers.size()==0){
-                freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                    System.out.println(">>No servers available");
+                    freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                    if(freeServers.size() != 0){
+                        try{
+                            Thread.sleep(2000);
+                        }catch(Exception e){
+                            System.out.println("Error: " + e.getMessage());
+                        }
+                    }
                 }
                 System.out.println("Maquinas:="+freeServers.size());
                 agendaItem.setServers(freeServers);
                 for (Serverinfo server : freeServers) {
                     up = low + limit;
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
-                    ServerDirectory.getInstance().getServerdirectoryJpaController().set_busy(server);
                     // GENERATE LIMITS
                     String lowerData = low.toString();
                     String upperData = up.toString();
@@ -168,7 +175,7 @@ public class ClientListener extends Thread {
                     server.setBusy(true);
                     server.setLowerdata(lowerData);
                     server.setUpperdata(upperData);
-
+                    ServerDirectory.getInstance().getServerdirectoryJpaController().set_busy(server);
                     ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                     outputStream.writeObject(msg);
                     outputStream.close();

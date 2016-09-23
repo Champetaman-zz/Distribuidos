@@ -42,6 +42,7 @@ public class ServerResponseListener extends Thread{
                 socket.close();
                 // Guardar contraseña en DB
                 if(msg.getType().equals("RESULT")){
+                    System.out.println(">>Agregando contrasena a rainbowtable");
                     Rainbowtable rainbowtable = new Rainbowtable(msg.getPassword(), msg.getPasswordHASH());
                     RainbowTableContainer.getInstance().getRainbowtableJpaController().create(rainbowtable);
                     AgendaItem item = Agenda.getInstance().getAgenda().element();

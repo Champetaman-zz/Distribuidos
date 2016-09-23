@@ -34,7 +34,7 @@ import my.Hack.HashGeneratorUtils;
  */
 public class Server {
 
-    public static int MY_PORT = 2028;
+    public static int MY_PORT = 2029;
     public static int MY_PING_PORT = 4040;
     public static int BALANCER_PORT = 1111;
     public static int BALANCER_RESPONSE_PORT = 1113;
@@ -51,6 +51,15 @@ public class Server {
         
         try {
             
+            LoadBalancerListener loadBalancerListener = new LoadBalancerListener();
+            loadBalancerListener.start();
+            
+            DecryptThread decryptThread = new DecryptThread();
+            decryptThread.start();
+            
+            // ABRIR PUERTO PARA PINGS
+            ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
+            
             // SUBSCRIPCION A LOAD BALANCER
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
             Serverinfo serverinfo = new Serverinfo(serverinfoPK, "DESCIFRAR", false);
@@ -60,14 +69,6 @@ public class Server {
             objectOutputStream.close();
             socket.close();
             
-            DecryptThread decryptThread = new DecryptThread();
-            decryptThread.start();
-            
-            LoadBalancerListener loadBalancerListener = new LoadBalancerListener();
-            loadBalancerListener.start();
-            
-            // ABRIR PUERTO PARA PINGS
-            ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
             while(true){
                 socket = serverSocketPing.accept();
                 socket.close();

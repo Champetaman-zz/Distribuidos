@@ -159,8 +159,10 @@ public class ServerinfoJpaController implements Serializable {
         try{
             EntityTransaction transaction = em.getTransaction();
             transaction.begin();
-            em.createQuery("UPDATE Serverinfo s SET s.busy = true WHERE s.serverinfoPK.ip = :ip and s.serverinfoPK.port = :port")
+            em.createQuery("UPDATE Serverinfo s SET s.busy = true,s.lowerdata = :lowerdata, s.upperdata = :upperdata WHERE s.serverinfoPK.ip = :ip and s.serverinfoPK.port = :port")
                     .setParameter("ip", server.getServerinfoPK().getIp())
+                    .setParameter("lowerdata", server.getLowerdata())
+                    .setParameter("upperdata", server.getUpperdata())
                     .setParameter("port", server.getServerinfoPK().getPort())
                     .executeUpdate();
             transaction.commit();

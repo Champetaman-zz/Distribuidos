@@ -35,31 +35,26 @@ public class ServerAvilabilityController extends Thread {
                 List<Serverinfo> servers = ServerDirectory.getInstance().getServerdirectoryJpaController().findServerinfoEntities();
                 for (Serverinfo server : servers) {
                     Integer low=0, up=0;
-
                     try {
-                        if(server.getLowerdata()!=null){
-                        low = Integer.parseInt(server.getLowerdata());
-                        up = Integer.parseInt(server.getUpperdata());
-                        }
                         String IP = server.getServerinfoPK().getIp();
                         Socket socket = new Socket(server.getServerinfoPK().getIp(), 4040);
                         socket.close();
-                        //System.out.println("Revisado: " + server.getServerinfoPK().getIp());
+                        System.out.println("Revisado: " + server.getServerinfoPK().getIp());
                     } catch (IOException ex) {
                         //ex.printStackTrace();
                         try {
                             System.out.println(">>Servidor desconectado: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
-
-                            ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
                             if (server.getBusy() == true) {
                                 int cont = 100;
-                                System.out.println(">>>El servidor se encontraba ocupado");
-                                System.out.println(">>>>Procediendo a repartir cargas...");
                                 int aux = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers().size();
-                                
+                                if(server.getLowerdata()!=null){
+                                    low = Integer.parseInt(server.getLowerdata());
+                                    up = Integer.parseInt(server.getUpperdata());
+                                    System.out.println(">>Procediendo a repartir cargas: LOW = " + low + " UP: " + up);
+                                }
                                 ClientListener.decrypt(low, up);
                             }
-
+                            ServerDirectory.getInstance().getServerdirectoryJpaController().destroy(server.getServerinfoPK());
                         } catch (NonexistentEntityException ex1) {
                             Logger.getLogger(ServerAvilabilityController.class.getName()).log(Level.SEVERE, null, ex1);
                         }

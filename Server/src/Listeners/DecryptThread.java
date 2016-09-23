@@ -27,13 +27,14 @@ import static server.Server.caracteres;
  */
 public class DecryptThread extends Thread{
 
+    public static int tamano_contrasena = 3;
     @Override
     @SuppressWarnings("empty-statement")
     public void run() {
         while(true){
             System.out.println(">>Esperando mensaje para decriptar");
             while(TaskContainer.getInstance().getServerMessage() == null){
-                //System.out.println(".");
+                System.out.println(".");
             }
             System.out.println(">>Comenzando a decriptar "+TaskContainer.getInstance().getServerMessage().getPasswordHASH());
             try {
@@ -41,7 +42,6 @@ public class DecryptThread extends Thread{
                 System.out.println("msg:="+msg.toString());
                 String password = letters(msg);
                 if(TaskContainer.getInstance().getServerMessage() != null){
-                    System.out.println(">>Enviando respuesta");
                     ResponseMessage result;
                     if(password.equals("")){
                         result = new ResponseMessage("NO_RESULT", "", password, msg.getPasswordHASH());
@@ -52,8 +52,9 @@ public class DecryptThread extends Thread{
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                     objectOutputStream.writeObject(result);
                     objectOutputStream.close();
+                    System.out.println(">>Enviando respuesta");
                     socket.close();
-                    TaskContainer.getInstance().setServerMessage(msg);
+                    TaskContainer.getInstance().setServerMessage(null);
                 }else{
                     System.out.println(">>Parando hilo");
                 }
@@ -64,8 +65,8 @@ public class DecryptThread extends Thread{
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                     objectOutputStream.writeObject(result);
                     objectOutputStream.close();
-                } catch (IOException ex1) {
-                    Logger.getLogger(DecryptThread.class.getName()).log(Level.SEVERE, null, ex1);
+                } catch (Exception ex1) {
+                    Logger.getLogger(DecryptThread.class.getName()).log(Level.SEVERE, null, ex1.getMessage());
                 }
             }
         }
@@ -79,7 +80,7 @@ public class DecryptThread extends Thread{
     
         for (int i = ini; i < fin; i++) {
             if(TaskContainer.getInstance().getServerMessage() != null){
-                String pass=strings(5, "" + (char) i, hash);
+                String pass=strings(tamano_contrasena, "" + (char) i, hash);
                 if(!pass.equals(""))
                     return pass; 
             }
@@ -88,7 +89,7 @@ public class DecryptThread extends Thread{
     }
 
     public static String strings(int n, String start, String hash) {
-        //System.out.println("String:="+start);
+        System.out.println("String:="+start);
         if(TaskContainer.getInstance().getServerMessage() == null){
             return "";
         }
