@@ -39,9 +39,11 @@ public class ServerSubscriptionListener extends Thread{
                     ServerDirectory.getInstance().getServerdirectoryJpaController().edit(serverinfo);
                 }else{
                     ServerDirectory.getInstance().getServerdirectoryJpaController().create(serverinfo);
+                    
                 }
                 System.out.println(">>Subscribed new server to " + serverinfo.getServerinfoPK().getIp() + ":" + serverinfo.getServerinfoPK().getPort());
                 List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                System.out.println(">>Cantidad de servidores:="+ServerDirectory.getInstance().getServerdirectoryJpaController().getServerinfoCount());
                 System.out.println("Available servers:");
                 for(Serverinfo server: freeServers){
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );

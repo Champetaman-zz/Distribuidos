@@ -101,6 +101,7 @@ public class ClientListener extends Thread{
                             msg = new Message("ACK", ""); 
                             objectOutputStream.writeObject(msg);
                             List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                            System.out.println("Cantidad de Servers:="+freeServers.size());
                             AgendaItem agendaItem = new AgendaItem(info, freeServers);
                             Agenda.getInstance().getAgenda().add(agendaItem);
                             ClientListener.decrypt();
@@ -124,7 +125,7 @@ public class ClientListener extends Thread{
                 
                 // DEFINE LIMITS
                 Integer limit,res =0,machine, low=1, up;
-                machine= agendaItem.getServers().size();
+               machine= agendaItem.getServers().size();
                 System.out.println("Machines in directory:="+machine);
                 if(255%machine==0){
                     limit=255/machine;                        
@@ -133,7 +134,7 @@ public class ClientListener extends Thread{
                     limit=(255/machine)+1;                        
                     res=255%machine;                        
                 }
-                                
+                   
                 for(Serverinfo server: agendaItem.getServers()){
                     up=low+limit;
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );

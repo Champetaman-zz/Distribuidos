@@ -35,9 +35,10 @@ public class DecryptThread extends Thread{
             while(TaskContainer.getInstance().getServerMessage() == null){
                
             }
-            System.out.println(">>Comenzando a decriptar");
+            System.out.println(">>Comenzando a decriptar "+TaskContainer.getInstance().getServerMessage().getPasswordHASH());
             try {
                 ServerMessage msg = TaskContainer.getInstance().getServerMessage();
+                System.out.println("msg:="+msg.toString());
                 String password = letters(msg);
                 if(TaskContainer.getInstance().getServerMessage() != null){
                     System.out.println(">>Enviando respuesta");
@@ -52,7 +53,7 @@ public class DecryptThread extends Thread{
                     objectOutputStream.writeObject(result);
                     objectOutputStream.close();
                     socket.close();
-                    TaskContainer.getInstance().setServerMessage(null);
+                    TaskContainer.getInstance().setServerMessage(msg);
                 }else{
                     System.out.println(">>Parando hilo");
                 }
@@ -73,8 +74,8 @@ public class DecryptThread extends Thread{
     public static String letters(ServerMessage msg) {
         int ini, fin;
         String hash = msg.getPasswordHASH();
-        ini = Integer.getInteger(msg.getLowerData());
-        fin = Integer.getInteger(msg.getUpperData());
+        ini = Integer.parseInt(msg.getLowerData());
+        fin = Integer.parseInt(msg.getUpperData());
     
         for (int i = ini; i < fin; i++) {
             if(TaskContainer.getInstance().getServerMessage() != null){
@@ -87,7 +88,7 @@ public class DecryptThread extends Thread{
     }
 
     public static String strings(int n, String start, String hash) {
-        System.out.println("String:="+start);
+        //System.out.println("String:="+start);
         if(TaskContainer.getInstance().getServerMessage() == null){
             return "";
         }

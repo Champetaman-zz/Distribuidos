@@ -49,13 +49,10 @@ public class Server {
         }
         
         try {
-            //MY_IP
-            InetAddress IP = InetAddress.getLocalHost();
-            MY_IP = IP.getHostAddress();
-            System.out.println("IP of my server is := " + IP.getHostAddress());
+           
             
             // ABRIR PUERTO PARA PINGS
-            //ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
+            ServerSocket serverSocketPing = new ServerSocket(MY_PING_PORT);
             // SUBSCRIPCION A LOAD BALANCER
             ServerinfoPK serverinfoPK = new ServerinfoPK(MY_IP, MY_PORT);
             Serverinfo serverinfo = new Serverinfo(serverinfoPK, "DESCIFRAR", false);
