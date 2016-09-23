@@ -33,7 +33,7 @@ public class DecryptThread extends Thread{
         while(true){
             System.out.println(">>Esperando mensaje para decriptar");
             while(TaskContainer.getInstance().getServerMessage() == null){
-                System.out.println(".");
+                //System.out.println(".");
             }
             System.out.println(">>Comenzando a decriptar "+TaskContainer.getInstance().getServerMessage().getPasswordHASH());
             try {
