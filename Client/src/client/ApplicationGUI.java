@@ -222,6 +222,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             msg = (Message)objectInputStream.readObject();
             String type = msg.getType();
+            System.out.println("Llego mensaje de Balanceador");
             switch(type){
                 case "ACK":
                     socket.close();
@@ -258,6 +259,7 @@ public class ApplicationGUI extends javax.swing.JFrame {
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             msg = (Message)objectInputStream.readObject();
             String type = msg.getType();
+            System.out.println("Llego mensaje de Balanceador");
             switch(type){
                 case "ACK":
                     socket.close();

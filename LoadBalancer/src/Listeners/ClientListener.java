@@ -35,43 +35,44 @@ import my.Hack.HashGeneratorUtils;
  *
  * @author salabd
  */
-public class ClientListener extends Thread{
-    
+public class ClientListener extends Thread {
+
     private ServerSocket serverSocket;
-    
+
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket(1112);
             System.out.println(">>Esperando mensajes de clientes");
-            while(true){
+            while (true) {
                 Socket socket = serverSocket.accept();
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                 Message msg = (Message) objectInputStream.readObject();
                 System.out.println("Nueva petición: " + msg.getData());
-                String type = msg.getType(); 
-                ClientInfo info = new ClientInfo((String)msg.getData(), msg.getIP(), msg.getPort());
+                String type = msg.getType();
+                ClientInfo info = new ClientInfo((String) msg.getData(), msg.getIP(), msg.getPort());
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                switch(type){
+                switch (type) {
                     case "DELETE_RAINBOWTABLE":
                         String result = RainbowTableContainer.getInstance().getRainbowtableJpaController().deleteAll();
-                        if(result.contains("EXITO")){
-                            msg = new Message("RESULT", result); 
-                        }else{
-                            msg = new Message("ERROR", result); 
+                        if (result.contains("EXITO")) {
+                            msg = new Message("RESULT", result);
+                        } else {
+                            msg = new Message("ERROR", result);
                         }
                         objectOutputStream.writeObject(msg);
                         break;
                     case "GET_RAINBOWTABLE":
-                        MessageRainbowTable msgRainbow = new MessageRainbowTable("ERROR", "NO SE PROCESO NADA");;
+                        MessageRainbowTable msgRainbow = new MessageRainbowTable("ERROR", "NO SE PROCESO NADA");
+                        ;
                         try {
-                            System.out.println(">>Devolviendo rainbow table"); 
+                            System.out.println(">>Devolviendo rainbow table");
                             List<Rainbowtable> table = RainbowTableContainer.getInstance().getRainbowtableJpaController().findRainbowtableEntities();
-                            msgRainbow = new MessageRainbowTable("RESULT", table); 
+                            msgRainbow = new MessageRainbowTable("RESULT", table);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                             msgRainbow = new MessageRainbowTable("ERROR", ex.getMessage());
-                        } finally{
+                        } finally {
                             objectOutputStream.writeObject(msgRainbow);
                         }
                         break;
@@ -79,35 +80,37 @@ public class ClientListener extends Thread{
                         System.out.println(">>Encriptando");
                         try {
                             String hash = RainbowTableContainer.getInstance().getRainbowtableJpaController().getHash(info.getData());
-                            if(hash.compareTo("") == 0){
+                            if (hash.compareTo("") == 0) {
                                 hash = HashGeneratorUtils.generateSHA256(info.getData());
                                 Rainbowtable rainbowtable = new Rainbowtable(info.getData(), hash);
                                 RainbowTableContainer.getInstance().getRainbowtableJpaController().create(rainbowtable);
                             }
-                            msg = new Message("RESULT", hash); 
+                            msg = new Message("RESULT", hash);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                             msg = new Message("ERROR", ex.getMessage());
-                        } finally{
+                        } finally {
                             objectOutputStream.writeObject(msg);
                         }
                         break;
                     case "DECRYPT":
                         String password = RainbowTableContainer.getInstance().getRainbowtableJpaController().getPassword(info.getData());
-                        if(!password.equals("")){
-                            msg = new Message("RESULT", password); 
+                        if (!password.equals("")) {
+                            msg = new Message("RESULT", password);
                             objectOutputStream.writeObject(msg);
-                        }else{
-                            msg = new Message("ACK", ""); 
-                            objectOutputStream.writeObject(msg);
+                        } else {
+
                             List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
-                            System.out.println("Cantidad de Servers:="+freeServers.size());
-                            if(freeServers.size() != 0){
+                            System.out.println("Cantidad de Servers:=" + freeServers.size());
+                            if (freeServers.size() != 0) {
+                                msg = new Message("ACK", "");
+                                objectOutputStream.writeObject(msg);
                                 AgendaItem agendaItem = new AgendaItem(info, freeServers);
                                 Agenda.getInstance().getAgenda().add(agendaItem);
                                 ClientListener.decrypt();
-                            }else{
-                                msgRainbow = new MessageRainbowTable("ERROR", "No hay servidores disponibles");
+                            } else {
+                                System.out.println(">>Enviando mensaje de error");
+                                msg = new Message("ERROR", "No hay servidores disponibles");
                                 objectOutputStream.writeObject(msg);
                             }
                         }
@@ -122,47 +125,47 @@ public class ClientListener extends Thread{
             Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static void decrypt(){
+
+    public static void decrypt() {
         try {
-            if(!Agenda.getInstance().getAgenda().isEmpty()){
+            if (!Agenda.getInstance().getAgenda().isEmpty()) {
                 AgendaItem agendaItem = Agenda.getInstance().getAgenda().element();
-                
+
                 // DEFINE LIMITS
-                Integer limit,res =0,machine, low=1, up;
-               machine= agendaItem.getServers().size();
-                System.out.println("Machines in directory:="+machine);
-                if(255%machine==0){
-                    limit=255/machine;                        
+                Integer limit, res = 0, machine, low = 1, up;
+                machine = agendaItem.getServers().size();
+                System.out.println("Machines in directory:=" + machine);
+                if (255 % machine == 0) {
+                    limit = 255 / machine;
+                } else {
+                    limit = (255 / machine) + 1;
+                    res = 255 % machine;
                 }
-                else{
-                    limit=(255/machine)+1;                        
-                    res=255%machine;                        
-                }
-                   
-                for(Serverinfo server: agendaItem.getServers()){
-                    up=low+limit;
-                    System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort() );
+
+                for (Serverinfo server : agendaItem.getServers()) {
+                    up = low + limit;
+                    System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                     ServerDirectory.getInstance().getServerdirectoryJpaController().set_busy(server);
                     // GENERATE LIMITS
                     String lowerData = low.toString();
                     String upperData = up.toString();
-                    ServerMessage msg = new ServerMessage("ASSIGNATION", lowerData, upperData,agendaItem.getClientInfo().getData());
+                    ServerMessage msg = new ServerMessage("ASSIGNATION", lowerData, upperData, agendaItem.getClientInfo().getData());
                     Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
                     ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                     outputStream.writeObject(msg);
                     outputStream.close();
                     socket.close();
-                    res=res-1;
-                    if(res==0)
-                        limit=limit-1;
-                    low=up;
+                    res = res - 1;
+                    if (res == 0) {
+                        limit = limit - 1;
+                    }
+                    low = up;
                 }
                 System.out.println("Desencriptando...");
             }
         } catch (IOException ex) {
             Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 }
