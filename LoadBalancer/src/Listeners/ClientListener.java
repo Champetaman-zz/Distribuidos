@@ -99,15 +99,22 @@ public class ClientListener extends Thread {
                             msg = new Message("RESULT", password);
                             objectOutputStream.writeObject(msg);
                         } else {
-
+                            int cont = 10000;
                             List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
                             System.out.println("Cantidad de Servers:=" + freeServers.size());
+                            while (freeServers.size() == 0) {
+                                if (cont-- == 0) {
+                                    System.out.println(">>Esperando que se conecten servidores");
+                                    cont = 1000000;
+                                    freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                                }
+                            }
                             if (freeServers.size() != 0) {
                                 msg = new Message("ACK", "");
                                 objectOutputStream.writeObject(msg);
                                 AgendaItem agendaItem = new AgendaItem(info, freeServers);
                                 Agenda.getInstance().getAgenda().add(agendaItem);
-                                ClientListener.decrypt();
+                                ClientListener.decrypt(0, 255);
                             } else {
                                 System.out.println(">>Enviando mensaje de error");
                                 msg = new Message("ERROR", "No hay servidores disponibles");
@@ -126,23 +133,30 @@ public class ClientListener extends Thread {
         }
     }
 
-    public static void decrypt() {
+    public static void decrypt(int llow, int lup) {
         try {
+            System.out.println("Entro a decriptar...");
             if (!Agenda.getInstance().getAgenda().isEmpty()) {
                 AgendaItem agendaItem = Agenda.getInstance().getAgenda().element();
 
                 // DEFINE LIMITS
-                Integer limit, res = 0, machine, low = 1, up;
+                Integer limit, res = 0, machine, low = 1, up, range = lup - llow;
                 machine = agendaItem.getServers().size();
-                System.out.println("Machines in directory:=" + machine);
-                if (255 % machine == 0) {
-                    limit = 255 / machine;
+                
+                if (range % machine == 0) {
+                    limit = range / machine;
                 } else {
-                    limit = (255 / machine) + 1;
-                    res = 255 % machine;
+                    limit = (range / machine) + 1;
+                    res = range % machine;
                 }
+                List<Serverinfo> freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
 
-                for (Serverinfo server : agendaItem.getServers()) {
+                while(freeServers.size()==0){
+                freeServers = ServerDirectory.getInstance().getServerdirectoryJpaController().getFreeServers();
+                }
+                System.out.println("Maquinas:="+freeServers.size());
+                agendaItem.setServers(freeServers);
+                for (Serverinfo server : freeServers) {
                     up = low + limit;
                     System.out.println("Server: " + server.getServerinfoPK().getIp() + ":" + server.getServerinfoPK().getPort());
                     ServerDirectory.getInstance().getServerdirectoryJpaController().set_busy(server);
@@ -151,6 +165,10 @@ public class ClientListener extends Thread {
                     String upperData = up.toString();
                     ServerMessage msg = new ServerMessage("ASSIGNATION", lowerData, upperData, agendaItem.getClientInfo().getData());
                     Socket socket = new Socket(server.getServerinfoPK().getIp(), server.getServerinfoPK().getPort());
+                    server.setBusy(true);
+                    server.setLowerdata(lowerData);
+                    server.setUpperdata(upperData);
+
                     ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                     outputStream.writeObject(msg);
                     outputStream.close();

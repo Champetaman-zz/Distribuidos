@@ -66,7 +66,7 @@ public class ServerResponseListener extends Thread{
                         }
                         Agenda.getInstance().getAgenda().remove();
                         // CONTINUAR CON OTROS TRABAJOS PENDIENTES SI HAY
-                        ClientListener.decrypt();
+                        ClientListener.decrypt(0,255);
                     }
                 }
             }

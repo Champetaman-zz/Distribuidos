@@ -79,7 +79,7 @@ public class DecryptThread extends Thread{
     
         for (int i = ini; i < fin; i++) {
             if(TaskContainer.getInstance().getServerMessage() != null){
-                String pass=strings(3, "" + (char) i, hash);
+                String pass=strings(5, "" + (char) i, hash);
                 if(!pass.equals(""))
                     return pass; 
             }
