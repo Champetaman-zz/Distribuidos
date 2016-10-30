@@ -6,6 +6,9 @@
 package server;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -29,11 +32,12 @@ public class GUI extends javax.swing.JFrame {
     public GUI() {
         try {
             initComponents();
+            server = new Server("Server2");
+            server = new Server("Server3");
+            server = new Server("Server4");
             this.server = new Server("Server1");
-            Registry r = LocateRegistry.createRegistry(1099);
-            r.rebind(server.getServerName(), server);
-            System.out.println("Server running");
-        } catch (RemoteException ex) {
+            this.server.connectToNetwork();
+        } catch (RemoteException | MalformedURLException | NotBoundException ex) {
             JOptionPane.showMessageDialog(this, "Error creando el servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -75,6 +79,11 @@ public class GUI extends javax.swing.JFrame {
 
         saveProjectBtn.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
         saveProjectBtn.setText("Guardar Proyecto");
+        saveProjectBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveProjectBtnMouseClicked(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tempus Sans ITC", 0, 18)); // NOI18N
         jLabel1.setText("Nombre Proyecto");
@@ -167,17 +176,33 @@ public class GUI extends javax.swing.JFrame {
             JFileChooser jFileChooser = new JFileChooser();
             int result = jFileChooser.showOpenDialog(this);
             if(result == JFileChooser.APPROVE_OPTION){
-                File file = jFileChooser.getSelectedFile();
-                data.File newFile = new data.File(file.getName(), file.getAbsolutePath());
-                if(server.addFileToProject(selectedProject, newFile)){
-                    Object[] row = {file.getName(), file.getAbsolutePath()};
-                    ((DefaultTableModel)projectFiles.getModel()).addRow(row);
-                }else{
-                    JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                try {
+                    File file = jFileChooser.getSelectedFile();
+                    data.File newFile = new data.File(file.getName(), file.getAbsolutePath());
+                    if(server.addFileToProject(selectedProject, newFile)){
+                        Object[] row = {file.getName(), file.getAbsolutePath()};
+                        ((DefaultTableModel)projectFiles.getModel()).addRow(row);
+                    }else{
+                        JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                     JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
     }//GEN-LAST:event_addFileBtnMouseClicked
+
+    private void saveProjectBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveProjectBtnMouseClicked
+        if(selectedProject.equals("")){
+            JOptionPane.showMessageDialog(this, "Debe crear o seleccionar un proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }else{
+            if(server.saveProject(selectedProject)){
+                JOptionPane.showMessageDialog(this, "Proyecto guardado satisfactoriamente", "EXITO", JOptionPane.PLAIN_MESSAGE);
+            }else{
+                JOptionPane.showMessageDialog(this, "Error salvando el proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_saveProjectBtnMouseClicked
 
     /**
      * @param args the command line arguments

@@ -1,6 +1,7 @@
 
 package skeleton;
 
+import data.Project;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -14,7 +15,8 @@ import java.rmi.RemoteException;
  *
  * @author TG1604
  */
-public interface ServerSkeleton extends Remote{
+public interface ServerSkeleton extends Remote {
     
     public String getServerName() throws RemoteException;
+    public boolean commit(Project project) throws RemoteException;
 }
