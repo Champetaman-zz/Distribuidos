@@ -10,10 +10,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -38,6 +34,7 @@ public class GUI extends javax.swing.JFrame {
             this.server = new Server("Server1");
             this.server.connectToNetwork();
         } catch (RemoteException | MalformedURLException | NotBoundException ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error creando el servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }

@@ -35,10 +35,11 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
     Map<String, Project> proyectos;
     private static int K = 2;
     private static Registry registry;
+    private static final String directoryIP = "10.138.21.90";
     
     private static Registry getRegistry() throws RemoteException{
         if(Server.registry == null){
-            Server.registry = LocateRegistry.createRegistry(1099);
+            Server.registry = LocateRegistry.getRegistry(directoryIP);
         }
         return Server.registry;
     }
@@ -52,7 +53,7 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
     }
     
     public void connectToNetwork() throws RemoteException, MalformedURLException, NotBoundException{
-        String [] servers = Naming.list("//localhost/");
+        String [] servers = Naming.list(directoryIP);
         for(String availableServerName: servers){
             System.out.println("AvailableServer: " + availableServerName);
             ServerSkeleton serverSkeleton = (ServerSkeleton) Naming.lookup(availableServerName);
