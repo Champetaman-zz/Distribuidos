@@ -6,8 +6,8 @@
 package data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -15,13 +15,11 @@ import java.util.List;
  */
 public class Project implements Serializable {
     private String projectName;
-    private List<File> files;
-    private List<String> backups;
+    private Map<String, File> archivos;
 
     public Project(String projectName) {
         this.projectName = projectName;
-        this.files = new ArrayList<>();
-        this.backups = new ArrayList<>();
+        this.archivos = new HashMap<>();
     }
 
     public String getProjectName() {
@@ -33,57 +31,23 @@ public class Project implements Serializable {
     }
 
     public boolean addFile(File file){
-        if(this.files.contains(file)){
+        if(this.archivos.get(file.getFileName()) != null){
             return false;
         }else{
-            this.files.add(file);
+            this.archivos.put(file.getFileName(), file);
             return true;
         }
     }
 
-    public List<File> getFiles() {
-        return files;
-    }
-
-    public List<String> getBackups() {
-        return backups;
-    }
-    
-    public void addBackups(List<RemoteServer> servers){
-        for(RemoteServer server: servers){
-            this.backups.add(server.getServerID());
-        }
+    public File getFile(String nombre){
+        return archivos.get(nombre);
     }
     
     public boolean save(){
-        java.io.File theDir = new java.io.File(projectName);
-        if(theDir.mkdir()){
-            for(File file: files){
-               if(!file.save(theDir.getAbsolutePath())){
-                   return false;
-               }
-            }
-            return true;
-        }else{
-            return false;
-        }
+        return true;
     }
 
-    public boolean update(Project project) {
-        for(File file: files){
-            boolean encontro = false;
-            for(File projectFile: project.getFiles()){
-                if(projectFile.getFileName().equals(file.getFileName())){
-                    encontro = true;
-                    if(!file.update(projectFile)){
-                        return false;
-                    }
-                }
-                if(!encontro){
-                    //TODO create file
-                }
-            }
-        }
+    public boolean update(Project project) {  
         return true;
     }
 }

@@ -5,9 +5,8 @@
  */
 package data;
 
-import java.util.ArrayList;
-import java.util.List;
-import skeleton.ServerSkeleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -16,29 +15,11 @@ import skeleton.ServerSkeleton;
 public class RemoteServer {
     
     private String serverID;
-    private ServerSkeleton serverSkeleton;
-    List<String> proyectos;
+    private Map<String,Project> proyectos;
 
-    public RemoteServer(String serverID, ServerSkeleton serverSkeleton) {
+    public RemoteServer(String serverID) {
         this.serverID = serverID;
-        this.serverSkeleton = serverSkeleton;
-        this.proyectos = new ArrayList<>();
-    }
-
-    public ServerSkeleton getServerSkeleton() {
-        return serverSkeleton;
-    }
-
-    public void setServerSkeleton(ServerSkeleton serverSkeleton) {
-        this.serverSkeleton = serverSkeleton;
-    }
-
-    public List<String> getProyectos() {
-        return proyectos;
-    }
-
-    public void setProyectos(List<String> proyectos) {
-        this.proyectos = proyectos;
+        this.proyectos = new HashMap<>();
     }
 
     public int getLoad(){
@@ -52,5 +33,6 @@ public class RemoteServer {
     public void setServerID(String serverID) {
         this.serverID = serverID;
     }
+
 }
 

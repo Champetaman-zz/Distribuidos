@@ -5,11 +5,12 @@
  */
 package data;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,16 +21,13 @@ import java.util.logging.Logger;
 public class File implements Serializable{
     private String fileName;
     private String filePath;
-    private byte[] file;
+    private String localCopy;
+    BasicFileAttributes metadata;
 
     public File(String fileName, String filePath) throws FileNotFoundException, IOException {
         this.fileName = fileName;
         this.filePath = filePath;
-        java.io.File fileAux = new java.io.File(filePath);
-        FileInputStream fis = new FileInputStream(fileAux);
-        file = new byte[(int) fileAux.length()];
-        fis.read(file);
-        fis.close();
+        this.metadata = Files.readAttributes(Paths.get(filePath), BasicFileAttributes.class);
     }
 
     public String getFileName() {
@@ -48,44 +46,30 @@ public class File implements Serializable{
         this.filePath = filePath;
     }  
 
-    public byte[] getFile() {
-        return file;
-    }
-
-    public void setFile(byte[] file) {
-        this.file = file;
-    }
-
     public boolean save(String projectPath){
-        try {
-            System.out.println("Salvando archivo " + fileName);
-            this.filePath = projectPath + "/" + fileName;
-            FileOutputStream fos = new FileOutputStream(filePath);
-            fos.write(file);
-            fos.close();
-            return true;
-        } catch (FileNotFoundException ex ) {
-            ex.printStackTrace();
-            return false;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
-        }
+        return true;
     }
 
     boolean update(File file) {
+        return true;
+    }
+
+    public String getLocalCopy() {
+        return localCopy;
+    }
+
+    public void setLocalCopy(String localCopy) {
+        this.localCopy = localCopy;
+    }
+    
+    public boolean updateMetadata(){
         try {
-            FileOutputStream fos = new FileOutputStream(filePath);
-            fos.write(file.getFile());
-            fos.close();
-            return true;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            return false;
+            this.metadata = Files.readAttributes(Paths.get(filePath), BasicFileAttributes.class);
         } catch (IOException ex) {
             Logger.getLogger(File.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-        
+        return true;
     }
+    
 }

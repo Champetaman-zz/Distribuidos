@@ -7,21 +7,21 @@ package server;
 
 import data.File;
 import data.Project;
-import data.RemoteServer;
-import data.RemoteServerComparator;
-import java.net.MalformedURLException;
-import java.rmi.Naming;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import skeleton.MasterSkeleton;
 import skeleton.ServerSkeleton;
 
 /**
@@ -31,34 +31,22 @@ import skeleton.ServerSkeleton;
 public class Server extends UnicastRemoteObject implements ServerSkeleton{
 
     private final String serverName;
-    List<RemoteServer> remoteServers;
     Map<String, Project> proyectos;
-    private static int K = 2;
-    private static Registry registry;
-    private static final String directoryIP = "10.138.21.90";
+    private Registry registry;
+    private final String coordinatorIP = "localhost";
+    private boolean commiting = false;
+    private Project actualProyect;
+    private MasterSkeleton master;
     
-    private static Registry getRegistry() throws RemoteException{
-        if(Server.registry == null){
-            Server.registry = LocateRegistry.getRegistry(directoryIP);
-        }
-        return Server.registry;
-    }
-    public Server(String serverName) throws RemoteException {
+    public Server(String serverName) throws RemoteException, NotBoundException {
         super();
         this.serverName = serverName;
-        this.remoteServers = new ArrayList<>();
         this.proyectos = new HashMap<>();
-        Server.getRegistry().rebind(this.serverName, this);
+        this.registry = LocateRegistry.getRegistry(coordinatorIP);
+        this.registry.rebind(this.serverName, this);
+        this.master = ((MasterSkeleton)this.registry.lookup("Master"));
+        this.master.connect(serverName);
         System.out.println(serverName + " running");
-    }
-    
-    public void connectToNetwork() throws RemoteException, MalformedURLException, NotBoundException{
-        String [] servers = Naming.list(directoryIP);
-        for(String availableServerName: servers){
-            System.out.println("AvailableServer: " + availableServerName);
-            ServerSkeleton serverSkeleton = (ServerSkeleton) Naming.lookup(availableServerName);
-            this.remoteServers.add(new RemoteServer(availableServerName, serverSkeleton));
-        }
     }
     
     public boolean addProject(String projectName){
@@ -67,6 +55,7 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
             return false;
         }else{
             proyectos.put(projectName, new Project(projectName));
+            actualProyect = proyectos.get(projectName);
             return true;
         }
     }
@@ -76,56 +65,62 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
         if(proyecto == null){
             return false;
         }else{
-            proyecto.addFile(file);
-            return true;
+            return proyecto.addFile(file);
         }
     }
     
-    public boolean saveProject(String projectName){
-        Project proyecto = proyectos.get(projectName);
-        if(proyecto == null){
+    public boolean saveFile(String nombreArchivo) throws IOException{
+        File file = actualProyect.getFile(nombreArchivo);
+        if(file != null){
+            return commit(nombreArchivo);
+        }
+        return true;
+    }
+    
+    public String getFilePath(String nombreArchivo){
+        File file = actualProyect.getFile(nombreArchivo);
+        if(file != null){
+            return file.getFilePath();
+        }
+        return "";
+    }
+    
+    public boolean createCopy(String nombreArchivo){
+        File file = actualProyect.getFile(nombreArchivo);
+        if(file != null){
+            try {
+                Files.copy(Paths.get(file.getFilePath()), Paths.get(System.getProperty("user.dir") + "/temp/" + file.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                file.setLocalCopy("./.temp/" + file.getFileName());
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+        }else{
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean commit(String nombreArchivo) throws RemoteException, IOException{
+        File file = actualProyect.getFile(nombreArchivo);
+        if(!this.master.commitRequest(nombreArchivo)){
+            // Rollback
+            System.out.println("Iniciando rollback " + nombreArchivo);
+            Files.copy(Paths.get(System.getProperty("user.dir") + "/temp/" + file.getFileName()), Paths.get(file.getFilePath()), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Terminando rollback" + nombreArchivo);
             return false;
         }else{
-            List<RemoteServer> bestServers = getBestServers();
-            proyecto.addBackups(bestServers);
-            for(RemoteServer remoteServer: bestServers){
-                try {
-                    if(!remoteServer.getServerSkeleton().commit(proyecto)){
-                        return false;
-                    }
-                } catch (RemoteException ex) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                    return false;
-                }
-            }
-            return true;
+            return file.updateMetadata();
         }
     }
     
-    private List<RemoteServer> getBestServers(){
-        remoteServers.sort(new RemoteServerComparator());
-        return remoteServers.subList(0, K);
+    public boolean isCommiting() {
+        return commiting;
     }
     
     // Remote Services
     @Override
     public String getServerName() throws RemoteException {
         return this.serverName;
-    }
-
-    @Override
-    public boolean commit(Project project) {
-        Project proyecto = proyectos.get(project.getProjectName());
-        if(proyecto == null){
-            proyectos.put(project.getProjectName(), project);
-            if(!proyectos.get(project.getProjectName()).save()){
-                return false;
-            }
-        }else{
-            if(!proyectos.get(project.getProjectName()).update(project)){
-                return false;
-            }
-        }
-        return true;
     }
 }

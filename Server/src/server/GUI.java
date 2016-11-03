@@ -5,11 +5,13 @@
  */
 package server;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -26,14 +28,11 @@ public class GUI extends javax.swing.JFrame {
      * Creates new form GUI
      */
     public GUI() {
+        // Client
         try {
             initComponents();
-            server = new Server("Server2");
-            server = new Server("Server3");
-            server = new Server("Server4");
             this.server = new Server("Server1");
-            this.server.connectToNetwork();
-        } catch (RemoteException | MalformedURLException | NotBoundException ex) {
+        } catch (RemoteException | NotBoundException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error creando el servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
@@ -48,15 +47,20 @@ public class GUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        projectNameLbl = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         addProjectBtn = new javax.swing.JButton();
         addFileBtn = new javax.swing.JButton();
-        saveProjectBtn = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        projectNameLbl = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
         projectFiles = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        projectsTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Tempus Sans ITC", 0, 18)); // NOI18N
+        jLabel1.setText("SISTEMA DE ARCHIVOS DISTRIBUIDO");
+        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         addProjectBtn.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
         addProjectBtn.setText("Crear Proyecto");
@@ -74,35 +78,66 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        saveProjectBtn.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
-        saveProjectBtn.setText("Guardar Proyecto");
-        saveProjectBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                saveProjectBtnMouseClicked(evt);
-            }
-        });
-
-        jLabel1.setFont(new java.awt.Font("Tempus Sans ITC", 0, 18)); // NOI18N
-        jLabel1.setText("Nombre Proyecto");
-
-        projectFiles.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
         projectFiles.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Nombre", "Ruta"
+                "Archivos"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
-        jScrollPane2.setViewportView(projectFiles);
+        projectFiles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                projectFilesMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(projectFiles);
+        if (projectFiles.getColumnModel().getColumnCount() > 0) {
+            projectFiles.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        projectsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Proyecto"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(projectsTable);
+        if (projectsTable.getColumnModel().getColumnCount() > 0) {
+            projectsTable.getColumnModel().getColumn(0).setResizable(false);
+        }
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -110,40 +145,36 @@ public class GUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(addFileBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(addProjectBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(saveProjectBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(projectNameLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(23, 23, 23))
-                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(addFileBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+                            .addComponent(addProjectBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
-                                .addGap(21, 21, 21))))))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addComponent(projectNameLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addProjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
                     .addComponent(projectNameLbl))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(addFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addProjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(saveProjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(addFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -152,11 +183,11 @@ public class GUI extends javax.swing.JFrame {
 
     private void addProjectBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addProjectBtnMouseClicked
         String projectName = JOptionPane.showInputDialog(this, "Nombre Proyecto");
-        if(projectName.equals("")){
+        if(projectName == null || projectName.equals("")){
             JOptionPane.showMessageDialog(this, "El nombre del proyecto no puede estar vacio", "ERROR", JOptionPane.ERROR_MESSAGE);
         }else{
             if(server.addProject(projectName)){
-                projectNameLbl.setText(projectName);
+                ((DefaultTableModel)projectsTable.getModel()).addRow(new String[]{projectName});
                 JOptionPane.showMessageDialog(this, "Proyecto creado satisfactoriamente", "EXITO", JOptionPane.PLAIN_MESSAGE);
                 selectedProject = projectName;
             }else{
@@ -177,10 +208,7 @@ public class GUI extends javax.swing.JFrame {
                     File file = jFileChooser.getSelectedFile();
                     data.File newFile = new data.File(file.getName(), file.getAbsolutePath());
                     if(server.addFileToProject(selectedProject, newFile)){
-                        Object[] row = {file.getName(), file.getAbsolutePath()};
-                        ((DefaultTableModel)projectFiles.getModel()).addRow(row);
-                    }else{
-                        JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                        ((DefaultTableModel)projectFiles.getModel()).addRow(new String[]{file.getName()});
                     }
                 } catch (IOException ex) {
                      JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -189,17 +217,32 @@ public class GUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addFileBtnMouseClicked
 
-    private void saveProjectBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveProjectBtnMouseClicked
-        if(selectedProject.equals("")){
-            JOptionPane.showMessageDialog(this, "Debe crear o seleccionar un proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }else{
-            if(server.saveProject(selectedProject)){
-                JOptionPane.showMessageDialog(this, "Proyecto guardado satisfactoriamente", "EXITO", JOptionPane.PLAIN_MESSAGE);
-            }else{
-                JOptionPane.showMessageDialog(this, "Error salvando el proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
+    private void projectFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_projectFilesMouseClicked
+        if(evt.getClickCount() == 2){
+            if(projectFiles.getValueAt(projectFiles.getSelectedRow(), 0) != null){
+                String fileName = (String)projectFiles.getValueAt(projectFiles.getSelectedRow(), 0);
+                String filePath = server.getFilePath(fileName);
+                if(!filePath.equals("")){
+                    try {
+                        System.out.println("Empezo a editar " + fileName);
+                        if(server.createCopy(fileName)){
+                            Process p = Runtime.getRuntime().exec("notepad " + filePath);
+                            p.waitFor();
+                            System.out.println("Termindo de editar " + fileName);
+                            server.saveFile(fileName);
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Error abriendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    } catch (InterruptedException ex) {
+                        JOptionPane.showMessageDialog(this, "Error abriendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(this, "Error abriendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
-    }//GEN-LAST:event_saveProjectBtnMouseClicked
+    }//GEN-LAST:event_projectFilesMouseClicked
 
     /**
      * @param args the command line arguments
@@ -240,9 +283,10 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JButton addFileBtn;
     private javax.swing.JButton addProjectBtn;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable projectFiles;
     private javax.swing.JLabel projectNameLbl;
-    private javax.swing.JButton saveProjectBtn;
+    private javax.swing.JTable projectsTable;
     // End of variables declaration//GEN-END:variables
 }
