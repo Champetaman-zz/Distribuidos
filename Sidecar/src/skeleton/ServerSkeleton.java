@@ -1,7 +1,6 @@
 
 package skeleton;
 
-import data.Project;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -18,4 +17,6 @@ import java.rmi.RemoteException;
 public interface ServerSkeleton extends Remote {
     
     public String getServerName() throws RemoteException;
+    public boolean canCommit(String fileName) throws RemoteException;
+    public boolean commitFile(String fileName, byte[] file) throws RemoteException;
 }

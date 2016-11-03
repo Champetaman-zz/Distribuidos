@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -103,7 +104,7 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
     
     public boolean commit(String nombreArchivo) throws RemoteException, IOException{
         File file = actualProyect.getFile(nombreArchivo);
-        if(!this.master.commitRequest(nombreArchivo)){
+        if(!this.master.commitRequest(this.serverName,nombreArchivo, Files.readAllBytes(Paths.get(file.getFilePath())))){
             // Rollback
             System.out.println("Iniciando rollback " + nombreArchivo);
             Files.copy(Paths.get(System.getProperty("user.dir") + "/temp/" + file.getFileName()), Paths.get(file.getFilePath()), StandardCopyOption.REPLACE_EXISTING);
@@ -122,5 +123,21 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
     @Override
     public String getServerName() throws RemoteException {
         return this.serverName;
+    }
+
+    @Override
+    public boolean canCommit(String fileName) throws RemoteException {
+        return true;
+    }
+
+    @Override
+    public boolean commitFile(String fileName, byte[] file) throws RemoteException {
+        try {
+            Files.write(Paths.get(System.getProperty("user.dir") + "/backups/" + fileName), file, StandardOpenOption.CREATE);
+            return true;
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 }

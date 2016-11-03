@@ -13,8 +13,21 @@ import java.util.Comparator;
  */
 public class RemoteServerComparator implements Comparator<RemoteServer> {
     
+  private String requestServer;
+
+    public RemoteServerComparator(String requestServer) {
+        this.requestServer = requestServer;
+    }
+  
   @Override
   public int compare(RemoteServer x, RemoteServer y) {
+    if(x.getServerName().equals(requestServer)){
+        return 1;
+    }
+    if(y.getServerName().equals(requestServer)){
+        return -1;
+    }
+    
     if(x.getLoad() > y.getLoad()){
         return 1;
     }else{
