@@ -16,6 +16,6 @@ import java.rmi.RemoteException;
  */
 public interface MasterSkeleton extends Remote {
     
-    public boolean connect(String serverName) throws RemoteException;
+    public boolean connect(String serverName, ServerSkeleton server) throws RemoteException;
     public boolean commitRequest(String serverName, String fileName, byte[] file) throws RemoteException;
 }

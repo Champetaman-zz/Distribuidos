@@ -51,8 +51,9 @@ public class Master extends UnicastRemoteObject implements MasterSkeleton{
     }
     
     @Override
-    public boolean connect(String serverName) throws RemoteException {
+    public boolean connect(String serverName, ServerSkeleton server) throws RemoteException {
         try {
+            this.registry.rebind(serverName, server);
             loadBalancer.add(new RemoteServer(serverName));
             servers.put(serverName, ((ServerSkeleton)this.registry.lookup(serverName)));
         } catch (NotBoundException | AccessException ex) {

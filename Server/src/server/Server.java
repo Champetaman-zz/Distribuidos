@@ -34,7 +34,7 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
     private final String serverName;
     Map<String, Project> proyectos;
     private Registry registry;
-    private final String coordinatorIP = "localhost";
+    private final String coordinatorIP = "192.168.0.12";
     private boolean commiting = false;
     private Project actualProyect;
     private MasterSkeleton master;
@@ -44,9 +44,8 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton{
         this.serverName = serverName;
         this.proyectos = new HashMap<>();
         this.registry = LocateRegistry.getRegistry(coordinatorIP);
-        this.registry.rebind(this.serverName, this);
         this.master = ((MasterSkeleton)this.registry.lookup("Master"));
-        this.master.connect(serverName);
+        this.master.connect(serverName,this);
         System.out.println(serverName + " running");
     }
     
