@@ -27,12 +27,11 @@ import skeleton.ServerSkeleton;
  *
  * @author TG1604
  */
-public class Master extends UnicastRemoteObject implements MasterSkeleton{
+public class Master implements MasterSkeleton{
     
     private List<RemoteServer> loadBalancer;
     private Map<String, ServerSkeleton> servers;
     private Map<String, FileInfo> files;
-    private Registry registry;
     private int K = 1;
     
     public Master() throws RemoteException {
@@ -40,9 +39,6 @@ public class Master extends UnicastRemoteObject implements MasterSkeleton{
         this.loadBalancer = new ArrayList<>();
         this.servers = new HashMap<>();
         this.files = new HashMap<>();
-        this.registry = LocateRegistry.createRegistry(1099);
-        this.registry.rebind("Master", this);
-        System.out.println("Master running");
     }
     
     private List<RemoteServer> getBestServers(String serverName){
@@ -53,9 +49,10 @@ public class Master extends UnicastRemoteObject implements MasterSkeleton{
     @Override
     public boolean connect(String serverName, ServerSkeleton server) throws RemoteException {
         try {
-            this.registry.rebind(serverName, server);
+            LocateRegistry.getRegistry().rebind(serverName, server);
             loadBalancer.add(new RemoteServer(serverName));
-            servers.put(serverName, ((ServerSkeleton)this.registry.lookup(serverName)));
+            servers.put(serverName, ((ServerSkeleton)LocateRegistry.getRegistry().lookup(serverName)));
+            System.out.println("Conectado: " + serverName);
         } catch (NotBoundException | AccessException ex) {
             Logger.getLogger(Master.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -64,7 +61,11 @@ public class Master extends UnicastRemoteObject implements MasterSkeleton{
     }
     
     public static void main(String args[]) throws RemoteException {
-        new Master();
+        Registry registry = LocateRegistry.createRegistry(1099);
+        Master master = new Master();
+        MasterSkeleton masterSkeleton = (MasterSkeleton)UnicastRemoteObject.exportObject(master, 0);
+        registry.rebind("Master", masterSkeleton);
+        System.out.println("Master running");
     }
 
     @Override
