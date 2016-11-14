@@ -18,4 +18,5 @@ public interface MasterSkeleton extends Remote {
     
     public boolean connect(String serverName, ServerSkeleton server) throws RemoteException;
     public boolean commitRequest(String serverName, String fileName, byte[] file) throws RemoteException;
+    public boolean addFile(String serverName, String fileName, byte[] file) throws RemoteException;
 }

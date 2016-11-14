@@ -5,15 +5,21 @@
  */
 package server;
 
+import data.Project;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Map;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -24,18 +30,14 @@ public class GUI extends javax.swing.JFrame {
 
     private Server server;
     private String selectedProject = "";
+
     /**
      * Creates new form GUI
      */
     public GUI() {
         // Client
-        try {
-            initComponents();
-            this.server = new Server("Server1");
-        } catch (RemoteException | NotBoundException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error creando el servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }
+        initComponents();
+
     }
 
     /**
@@ -49,41 +51,152 @@ public class GUI extends javax.swing.JFrame {
 
         projectNameLbl = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        addFileBtn1 = new javax.swing.JButton();
         addProjectBtn = new javax.swing.JButton();
         addFileBtn = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        anotherFiles = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        copyFiles = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         projectFiles = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         projectsTable = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jIp = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jName = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().add(projectNameLbl, new org.netbeans.lib.awtextra.AbsoluteConstraints(587, 105, 281, -1));
 
-        jLabel1.setFont(new java.awt.Font("Tempus Sans ITC", 0, 18)); // NOI18N
-        jLabel1.setText("SISTEMA DE ARCHIVOS DISTRIBUIDO");
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLabel1.setText("SERVIDOR DE ARCHIVOS DISTRIBUIDOS");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 30, -1, -1));
 
-        addProjectBtn.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
+        addFileBtn1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        addFileBtn1.setText("Actualizar copiados");
+        addFileBtn1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                addFileBtn1MouseClicked(evt);
+            }
+        });
+        addFileBtn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addFileBtn1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(addFileBtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 350, 190, 30));
+
+        addProjectBtn.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         addProjectBtn.setText("Crear Proyecto");
         addProjectBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addProjectBtnMouseClicked(evt);
             }
         });
+        addProjectBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addProjectBtnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(addProjectBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 350, 190, 30));
 
-        addFileBtn.setFont(new java.awt.Font("Tempus Sans ITC", 0, 14)); // NOI18N
+        addFileBtn.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         addFileBtn.setText("Añadir archivo");
         addFileBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addFileBtnMouseClicked(evt);
             }
         });
+        addFileBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addFileBtnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(addFileBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 350, 190, 30));
+
+        anotherFiles.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Archivos Disponibles"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        anotherFiles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                anotherFilesMouseClicked(evt);
+            }
+        });
+        jScrollPane4.setViewportView(anotherFiles);
+        if (anotherFiles.getColumnModel().getColumnCount() > 0) {
+            anotherFiles.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        getContentPane().add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 130, 190, 201));
+
+        copyFiles.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Archivos Copiados"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        copyFiles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                copyFilesMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(copyFiles);
+        if (copyFiles.getColumnModel().getColumnCount() > 0) {
+            copyFiles.getColumnModel().getColumn(0).setResizable(false);
+        }
+
+        getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 130, 190, 201));
 
         projectFiles.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Archivos"
+                "Archivos Asociados"
             }
         ) {
             Class[] types = new Class [] {
@@ -111,6 +224,8 @@ public class GUI extends javax.swing.JFrame {
             projectFiles.getColumnModel().getColumn(0).setResizable(false);
         }
 
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 130, 190, 201));
+
         projectsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -134,98 +249,110 @@ public class GUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        projectsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                projectsTableMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(projectsTable);
         if (projectsTable.getColumnModel().getColumnCount() > 0) {
             projectsTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(addFileBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
-                            .addComponent(addProjectBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                        .addComponent(projectNameLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(projectNameLbl))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(addProjectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(addFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 190, 201));
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel2.setText("Server Name:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 70, 90, 20));
+
+        jIp.setText("localhost");
+        jIp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jIpActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jIp, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 90, 190, -1));
+
+        jButton1.setText("Conectar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 90, 100, -1));
+
+        jName.setText("Server1");
+        jName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jNameActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jName, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 90, 190, -1));
+
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jLabel3.setText("IP Master: ");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, 70, 20));
+
+        jButton2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jButton2.setText("Consultar Proyectos");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 350, 190, 30));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void addProjectBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addProjectBtnMouseClicked
         String projectName = JOptionPane.showInputDialog(this, "Nombre Proyecto");
-        if(projectName == null || projectName.equals("")){
+        if (projectName == null || projectName.equals("")) {
             JOptionPane.showMessageDialog(this, "El nombre del proyecto no puede estar vacio", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }else{
-            if(server.addProject(projectName)){
-                ((DefaultTableModel)projectsTable.getModel()).addRow(new String[]{projectName});
-                JOptionPane.showMessageDialog(this, "Proyecto creado satisfactoriamente", "EXITO", JOptionPane.PLAIN_MESSAGE);
-                selectedProject = projectName;
-            }else{
-                JOptionPane.showMessageDialog(this, "Error creando el proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
-            }
+        } else if (server.addProject(projectName)) {
+            ((DefaultTableModel) projectsTable.getModel()).addRow(new String[]{projectName});
+            JOptionPane.showMessageDialog(this, "Proyecto creado satisfactoriamente", "EXITO", JOptionPane.PLAIN_MESSAGE);
+            selectedProject = projectName;
+        } else {
+            JOptionPane.showMessageDialog(this, "Error creando el proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addProjectBtnMouseClicked
 
     private void addFileBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addFileBtnMouseClicked
-        
-        if(selectedProject.equals("")){
+        String projectName = (String) projectsTable.getValueAt(projectsTable.getSelectedRow(), 0);
+        selectedProject = projectName;
+        if (selectedProject.equals("")) {
             JOptionPane.showMessageDialog(this, "Debe crear o seleccionar un proyecto", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }else{
+        } else {
+            System.out.println(selectedProject);
             JFileChooser jFileChooser = new JFileChooser();
             int result = jFileChooser.showOpenDialog(this);
-            if(result == JFileChooser.APPROVE_OPTION){
+            if (result == JFileChooser.APPROVE_OPTION) {
                 try {
                     File file = jFileChooser.getSelectedFile();
+                    Path path = file.toPath();
                     data.File newFile = new data.File(file.getName(), file.getAbsolutePath());
-                    if(server.addFileToProject(selectedProject, newFile)){
-                        ((DefaultTableModel)projectFiles.getModel()).addRow(new String[]{file.getName()});
+                    newFile.setBytes(Files.readAllBytes(path));
+                    if (server.addFileToProject(selectedProject, newFile)) {
+                        ((DefaultTableModel) projectFiles.getModel()).addRow(new String[]{file.getName()});
+
                     }
                 } catch (IOException ex) {
-                     JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Error añadiendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
     }//GEN-LAST:event_addFileBtnMouseClicked
 
     private void projectFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_projectFilesMouseClicked
-        if(evt.getClickCount() == 2){
-            if(projectFiles.getValueAt(projectFiles.getSelectedRow(), 0) != null){
-                String fileName = (String)projectFiles.getValueAt(projectFiles.getSelectedRow(), 0);
+        if (evt.getClickCount() == 2) {
+            if (projectFiles.getValueAt(projectFiles.getSelectedRow(), 0) != null) {
+                String fileName = (String) projectFiles.getValueAt(projectFiles.getSelectedRow(), 0);
                 String filePath = server.getFilePath(fileName);
-                if(!filePath.equals("")){
+                if (!filePath.equals("")) {
                     try {
                         System.out.println("Empezo a editar " + fileName);
-                        if(server.createCopy(fileName)){
+                        if (server.createCopy(fileName)) {
                             Process p = Runtime.getRuntime().exec("notepad " + filePath);
                             p.waitFor();
                             System.out.println("Termindo de editar " + fileName);
@@ -237,12 +364,83 @@ public class GUI extends javax.swing.JFrame {
                     } catch (InterruptedException ex) {
                         JOptionPane.showMessageDialog(this, "Error abriendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
                     }
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(this, "Error abriendo el archivo", "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
     }//GEN-LAST:event_projectFilesMouseClicked
+
+    private void projectsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_projectsTableMouseClicked
+        // TODO add your handling code here:
+        ((DefaultTableModel) projectFiles.getModel()).setRowCount(0);
+        if (projectsTable.getValueAt(projectsTable.getSelectedRow(), 0) != null) {
+            String projectName = (String) projectsTable.getValueAt(projectsTable.getSelectedRow(), 0);
+            selectedProject = projectName;
+            System.out.println("Proyecto:= " + projectName);
+            for (String key : server.getProject(projectName).getArchivos().keySet()) {
+                System.out.println(projectName + " " + key);
+                if (server.getProject(projectName).getFile(key) != null) {
+                    ((DefaultTableModel) projectFiles.getModel()).addRow(new String[]{key});
+                }
+            }
+        }
+
+    }//GEN-LAST:event_projectsTableMouseClicked
+
+    private void jIpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jIpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jIpActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        try {
+            System.out.println("Conectando");
+            this.server = new Server(jName.getText(), jIp.getText());
+        } catch (RemoteException | NotBoundException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error creando el servidor", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jNameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jNameActionPerformed
+
+    private void copyFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_copyFilesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_copyFilesMouseClicked
+
+    private void anotherFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_anotherFilesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_anotherFilesMouseClicked
+
+    private void addFileBtn1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addFileBtn1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addFileBtn1MouseClicked
+
+    private void addFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addFileBtnActionPerformed
+
+    private void addFileBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileBtn1ActionPerformed
+        // TODO add your handling code here:
+        copyFiles= new JTable();
+        Map<String, Stack<data.File>> map = server.getVersiones();
+        for (String key : map.keySet()) {
+            String nomFile = map.get(key).peek().getFileName();
+            ((DefaultTableModel) copyFiles.getModel()).addRow(new String[]{nomFile});
+
+        }
+    }//GEN-LAST:event_addFileBtn1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void addProjectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addProjectBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addProjectBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -281,10 +479,21 @@ public class GUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFileBtn;
+    private javax.swing.JButton addFileBtn1;
     private javax.swing.JButton addProjectBtn;
+    private javax.swing.JTable anotherFiles;
+    private javax.swing.JTable copyFiles;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JTextField jIp;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JTextField jName;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTable projectFiles;
     private javax.swing.JLabel projectNameLbl;
     private javax.swing.JTable projectsTable;

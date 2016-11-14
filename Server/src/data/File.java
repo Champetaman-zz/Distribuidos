@@ -22,7 +22,9 @@ public class File implements Serializable{
     private String fileName;
     private String filePath;
     private String localCopy;
+    private byte []bytes;
     BasicFileAttributes metadata;
+    
 
     public File(String fileName, String filePath) throws FileNotFoundException, IOException {
         this.fileName = fileName;
@@ -42,6 +44,14 @@ public class File implements Serializable{
         return filePath;
     }
 
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+    
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }  
