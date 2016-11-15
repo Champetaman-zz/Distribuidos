@@ -32,6 +32,7 @@ public class Master implements MasterSkeleton {
     private List<RemoteServer> loadBalancer;
     private Map<String, ServerSkeleton> servers;
     private Map<String, FileInfo> files;
+    private AvailabilityThread availabilityThread;
     private int K = 2;
 
     public Master() throws RemoteException {
@@ -39,6 +40,8 @@ public class Master implements MasterSkeleton {
         this.loadBalancer = new ArrayList<>();
         this.servers = new HashMap<>();
         this.files = new HashMap<>();
+        availabilityThread = new AvailabilityThread(this);
+        availabilityThread.start();
     }
 
     private List<RemoteServer> getBestServers(String serverName) {
@@ -98,6 +101,63 @@ public class Master implements MasterSkeleton {
         return false;
     }
 
+    public Map<String, ServerSkeleton> getServers() {
+        return servers;
+    }
+    
+    public void reassign(String serverName){
+        boolean reallocated = false;
+        System.out.println("Reacomodando archivos de: " + serverName);
+        for(String fileName: files.keySet()){
+            FileInfo fileInfo = files.get(fileName);
+            // GET FILE
+            byte[] fileBytes = null;
+            for(String server: fileInfo.getCopies()){
+                if(!server.equals(serverName)){
+                    try {
+                        fileBytes = servers.get(server).getFile(fileName);
+                    } catch (RemoteException ex) {
+                        System.out.println("Error obteniendo archivo de: " + serverName);
+                    }
+                }
+            }
+            if(fileBytes != null){
+                for(String server: fileInfo.getCopies()){
+                    if(server.equals(serverName)){
+                        List<RemoteServer> candidates = getBestServers(serverName);
+                        for(RemoteServer candidate: candidates){
+                            if(!fileInfo.getCopies().contains(candidate.getServerName())){
+                                reallocated = true;
+                                //REALLOCATE FILE
+                                System.out.println("Enviando peticion de guardado de copia a " + candidate.getServerName());
+                                try {
+                                    if(((ServerSkeleton)servers.get(candidate.getServerName())).commitFile(fileName, fileBytes)){
+                                        fileInfo.addCopy(candidate.getServerName());
+                                        fileInfo.getCopies().remove(serverName);
+                                        System.out.println("Added " + candidate.getServerName() + " server as backup from file " + fileName);
+                                        reallocated = true;
+                                        servers.remove(serverName);
+                                        break;
+                                    }else{
+                                        System.out.println("No es posible hacer copia en: " + candidate.getServerName());
+                                    }
+                                } catch (RemoteException ex) {
+                                    System.out.println("No es posible hacer copia en: " + candidate.getServerName());
+                                }
+                            }
+                        }
+                        if(!reallocated){
+                            System.out.println("Error reasignando el archivo : " + fileName);
+                            break;
+                        }
+                        fileInfo.getCopies().remove(serverName);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
     @Override
     public boolean commitRequest(String serverName, String fileName, byte[] file) throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

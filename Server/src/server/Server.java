@@ -190,4 +190,18 @@ public class Server extends UnicastRemoteObject implements ServerSkeleton {
         }
     }
 
+    @Override
+    public byte[] getFile(String fileName) throws RemoteException {
+        byte[] fileBytes = null;
+        for(String projectName: proyectos.keySet()){
+            if(proyectos.get(projectName).getFile(fileName) != null){
+                try {
+                    fileBytes = Files.readAllBytes(Paths.get(proyectos.get(projectName).getFile(fileName).getFilePath()));
+                } catch (IOException ex) {
+                    System.out.println("Error obteniendo archivo: " + fileName);
+                }
+            }
+        }
+        return fileBytes;
+    }
 }

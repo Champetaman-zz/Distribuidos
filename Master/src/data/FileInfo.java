@@ -23,4 +23,12 @@ public class FileInfo {
     public void addCopy(String serverName){
         copies.add(serverName);
     }
+    
+    public Set<String> getCopies() {
+        return copies;
+    }
+
+    public void setCopies(Set<String> copies) {
+        this.copies = copies;
+    }
 }

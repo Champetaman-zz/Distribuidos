@@ -19,4 +19,5 @@ public interface ServerSkeleton extends Remote {
     public String getServerName() throws RemoteException;
     public boolean canCommit(String fileName) throws RemoteException;
     public boolean commitFile(String fileName, byte[] file) throws RemoteException;
+    public byte[] getFile(String fileName) throws RemoteException;
 }
